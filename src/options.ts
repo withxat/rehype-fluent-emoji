@@ -22,7 +22,7 @@ export interface RehypeFluentEmojiOptions {
 	 * @default fluentui-emoji-unicode on GitHub
 	 */
 	assetRepository?: string
-	/** Git ref used with `assetRepository`. @default 'master' */
+	/** Git ref used with `assetRepository`. @default 'main' */
 	assetRepositoryBranch?: string
 	/** CSS class applied to generated `<span>` elements. @default 'fluent-emoji' */
 	className?: string

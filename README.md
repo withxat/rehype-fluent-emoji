@@ -143,7 +143,7 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 | `assetBase` | `string` | `'/emoji'` | Base URL for emoji assets in generated HTML |
 | `assetOutputDir` | `string` | `'public/emoji'` | Directory for downloaded assets, relative to `cwd` |
 | `assetRepository` | `string` | `withxat/fluentui-emoji-unicode` | GitHub repo URL, shorthand, or raw asset base used when downloading |
-| `assetRepositoryBranch` | `string` | `'master'` | Git ref used with `assetRepository` when the URL does not include a branch |
+| `assetRepositoryBranch` | `string` | `'main'` | Git ref used with `assetRepository` when the URL does not include a branch |
 | `cwd` | `string` | `process.cwd()` | Project root used to resolve `assetOutputDir` |
 | `ext` | `string` | `'svg'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
@@ -167,7 +167,7 @@ By default, assets are downloaded from [withxat/fluentui-emoji-unicode](https://
 'withxat/fluentui-emoji-unicode'
 
 // already-resolved raw asset base
-'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/master/assets'
+'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets'
 ```
 
 #### Generated asset paths

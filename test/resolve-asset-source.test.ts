@@ -7,7 +7,7 @@ describe('resolveAssetSource', () => {
 		expect(
 			resolveAssetSource('https://github.com/withxat/fluentui-emoji-unicode'),
 		).toBe(
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/master/assets',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets',
 		)
 	})
 
@@ -30,10 +30,10 @@ describe('resolveAssetSource', () => {
 	it('keeps an existing raw asset base URL', () => {
 		expect(
 			resolveAssetSource(
-				'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/master/assets',
+				'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets',
 			),
 		).toBe(
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/master/assets',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets',
 		)
 	})
 })

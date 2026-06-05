@@ -42,7 +42,7 @@ describe('syncEmojiAssets', () => {
 		await expect(readFile(catPath, 'utf8')).resolves.toBe('<svg>😺</svg>')
 		expect(fetchMock).toHaveBeenCalledTimes(2)
 		expect(fetchMock).toHaveBeenCalledWith(
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/master/assets/1f63a_color.svg',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f63a_color.svg',
 		)
 	})
 
