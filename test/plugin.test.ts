@@ -193,10 +193,12 @@ describe('rehypeFluentEmoji', () => {
 			expect(textSpan.properties.style).toContain('line-height:1')
 			expect(textSpan.properties.style).toContain('user-select:text')
 			expect(textSpan.properties.style).toContain('-webkit-user-select:text')
-			expect(textSpan.properties.style).toContain('opacity:0')
 			expect(textSpan.properties.style).toContain('pointer-events:none')
-			expect(textSpan.properties.style).toContain('color:transparent')
-			expect(textSpan.properties.style).toContain('-webkit-text-fill-color:transparent')
+			expect(textSpan.properties.style).toContain('color:transparent!important')
+			expect(textSpan.properties.style).toContain(
+				'-webkit-text-fill-color:transparent!important',
+			)
+			expect(textSpan.properties.style).not.toContain('opacity:0')
 			expect(textSpan.properties.style).not.toContain('font-size:0')
 			expect(textSpan.properties.style).not.toContain('user-select:none')
 			expect(textSpan.properties.style).not.toContain('clip:')

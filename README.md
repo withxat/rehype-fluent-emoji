@@ -42,7 +42,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle"><span class="fluent-emoji-text" style="display:inline-block;position:relative;z-index:0;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;opacity:0;color:transparent;-webkit-text-fill-color:transparent">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"></span></span></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle"><span class="fluent-emoji-text" style="display:inline-block;position:relative;z-index:0;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;color:transparent!important;-webkit-text-fill-color:transparent!important">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"></span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -54,8 +54,8 @@ console.log(String(file))
 Each emoji uses three layers:
 
 1. **Root `<span>`** — `1em` layout box with relative positioning
-2. **Text layer** — the original Unicode character, kept transparent and selectable so copying selected text preserves the emoji without painting the native glyph
-3. **Visual layer** — an `aria-hidden` overlay with the Fluent Emoji background, kept above the text layer so custom selection backgrounds do not cover it
+2. **Text layer** — the original Unicode character, kept transparent and selectable so copying selected text preserves the emoji while custom selection backgrounds can still render
+3. **Visual layer** — an `aria-hidden` overlay with the Fluent Emoji background, kept above the text layer so the SVG renders over the selected text
 
 ## Examples
 
@@ -177,7 +177,7 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 Each emoji becomes a `<span>` with a hidden text child and a visual overlay:
 
 - **Visual layer** — Fluent Emoji image on a `1em` inline box
-- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable
+- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable and letting selection backgrounds render
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
 

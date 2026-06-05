@@ -53,15 +53,13 @@ export const FLUENT_EMOJI_CSS = [
 	'  pointer-events: none;',
 	'  user-select: text;',
 	'  -webkit-user-select: text;',
-	'  opacity: 0;',
-	'  color: transparent;',
-	'  -webkit-text-fill-color: transparent;',
+	'  color: transparent !important;',
+	'  -webkit-text-fill-color: transparent !important;',
 	'}',
 	'.fluent-emoji-text::selection,',
 	'.fluent-emoji-text::-moz-selection {',
-	'  color: transparent;',
-	'  -webkit-text-fill-color: transparent;',
-	'  background: transparent;',
+	'  color: transparent !important;',
+	'  -webkit-text-fill-color: transparent !important;',
 	'}',
 ].join('\n')
 
@@ -80,9 +78,8 @@ const TEXT_INLINE_STYLE = [
 	'pointer-events:none',
 	'user-select:text',
 	'-webkit-user-select:text',
-	'opacity:0',
-	'color:transparent',
-	'-webkit-text-fill-color:transparent',
+	'color:transparent!important',
+	'-webkit-text-fill-color:transparent!important',
 ].join(';')
 
 const VISUAL_INLINE_STYLE = [
