@@ -166,30 +166,20 @@ describe('rehypeFluentEmoji', () => {
 			expect(span.properties.style).toContain('background:url')
 		})
 
-		it('hides the unicode glyph and keeps it out of text selection', () => {
+		it('hides the unicode glyph while keeping it selectable for copy', () => {
 			const tree = processTree('<p>😺</p>')
 			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
 
-			expect(textSpan.properties.style).toContain('clip:rect(0,0,0,0)')
-			expect(textSpan.properties.style).toContain('clip-path:inset(50%)')
-			expect(textSpan.properties.style).toContain('left:-10000px')
+			expect(textSpan.properties.style).toContain('display:inline-block')
+			expect(textSpan.properties.style).toContain('width:100%')
+			expect(textSpan.properties.style).toContain('height:100%')
+			expect(textSpan.properties.style).toContain('user-select:text')
+			expect(textSpan.properties.style).toContain('-webkit-user-select:text')
 			expect(textSpan.properties.style).toContain('pointer-events:none')
-			expect(textSpan.properties.style).not.toContain('user-select:none')
 			expect(textSpan.properties.style).toContain('color:transparent')
 			expect(textSpan.properties.style).toContain('-webkit-text-fill-color:transparent')
-		})
-
-		it('positions the native emoji glyph off screen for selected text', () => {
-			const tree = processTree('<p>Hello 😺 world</p>')
-			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
-			const style = String(textSpan.properties.style)
-
-			expect(textSpan.children).toEqual([{ type: 'text', value: '😺' }])
-			expect(style).toContain('left:-10000px')
-			expect(style).toContain('color:transparent')
-			expect(style).toContain('-webkit-text-fill-color:transparent')
-			expect(style).not.toContain('user-select:none')
-			expect(style).not.toContain('-webkit-user-select:none')
+			expect(textSpan.properties.style).not.toContain('user-select:none')
+			expect(textSpan.properties.style).not.toContain('clip:')
 		})
 
 		it('omits title by default', () => {

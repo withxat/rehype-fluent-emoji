@@ -34,14 +34,17 @@ describe('buildRootStyle', () => {
 })
 
 describe('buildTextStyle', () => {
-	it('builds visually hidden styles when inlineStyle is true', () => {
+	it('builds transparent selectable text styles when inlineStyle is true', () => {
 		const style = buildTextStyle(true)
 
-		expect(style).toContain('clip:rect(0,0,0,0)')
-		expect(style).toContain('clip-path:inset(50%)')
-		expect(style).toContain('left:-10000px')
-		expect(style).toContain('margin:-1px')
+		expect(style).toContain('display:inline-block')
+		expect(style).toContain('width:100%')
+		expect(style).toContain('height:100%')
+		expect(style).toContain('user-select:text')
+		expect(style).toContain('-webkit-user-select:text')
 		expect(style).toContain('-webkit-text-fill-color:transparent')
+		expect(style).not.toContain('clip:')
+		expect(style).not.toContain('user-select:none')
 	})
 
 	it('returns undefined when inlineStyle is false', () => {
@@ -50,12 +53,12 @@ describe('buildTextStyle', () => {
 })
 
 describe('fLUENT_EMOJI_CSS', () => {
-	it('styles the root background and hidden text layer', () => {
+	it('styles the root background and copyable text layer', () => {
 		expect(FLUENT_EMOJI_CSS).toContain('.fluent-emoji-text')
 		expect(FLUENT_EMOJI_CSS).toContain('background-image: var(--fluent-emoji-url)')
 		expect(FLUENT_EMOJI_CSS).toContain('::selection')
-		expect(FLUENT_EMOJI_CSS).toContain('clip-path: inset(50%)')
-		expect(FLUENT_EMOJI_CSS).toContain('left: -10000px')
+		expect(FLUENT_EMOJI_CSS).toContain('user-select: text')
 		expect(FLUENT_EMOJI_CSS).toContain('-webkit-text-fill-color: transparent')
+		expect(FLUENT_EMOJI_CSS).not.toContain('user-select: none')
 	})
 })
