@@ -1,0 +1,60 @@
+{
+	"name": "rehype-fluent-emoji",
+	"type": "module",
+	"version": "1.0.0",
+	"packageManager": "pnpm@11.5.1",
+	"description": "Rehype plugin to replace Unicode emoji with Fluent Emoji images",
+	"author": "",
+	"license": "MIT",
+	"keywords": [
+		"emoji",
+		"fluent",
+		"fluent-emoji",
+		"hast",
+		"html",
+		"plugin",
+		"rehype",
+		"rehype-plugin",
+		"ssr",
+		"unified"
+	],
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=18"
+	},
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint",
+		"lint:fix": "eslint --fix",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"prepack": "pnpm run build"
+	},
+	"dependencies": {
+		"@types/hast": "^3.0.4",
+		"emoji-regex": "^10.4.0",
+		"emojibase-data": "^17.0.0",
+		"unist-util-visit": "^5.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.1",
+		"@withxat/eslint-config": "^1.1.4",
+		"@withxat/tsconfig": "^1.0.4",
+		"eslint": "^10.3.0",
+		"rehype": "^13.0.2",
+		"rehype-parse": "^9.0.1",
+		"rehype-stringify": "^10.0.1",
+		"typescript": "^6.0.3",
+		"unified": "^11.0.5",
+		"vitest": "^4.1.8"
+	}
+}
