@@ -42,7 +42,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="display:inline-block;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;font-size:0;line-height:0;pointer-events:none;user-select:text;-webkit-user-select:text;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="display:inline-block;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;opacity:0;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -54,7 +54,7 @@ console.log(String(file))
 Each emoji uses two layers:
 
 1. **Root `<span>`** — `1em` layout box with the Fluent Emoji `background-image`
-2. **Text layer** — the original Unicode character, kept at `font-size: 0` and selectable so copying selected text preserves the emoji without painting the native glyph
+2. **Text layer** — the original Unicode character, kept transparent and selectable so copying selected text preserves the emoji without painting the native glyph
 
 ## Examples
 
@@ -176,7 +176,7 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 Each emoji becomes a `<span>` with a hidden text child:
 
 - **Root background** — Fluent Emoji image on a `1em` inline box
-- **Text layer** — the emoji glyph itself for screen readers and copy, kept at `font-size: 0` while remaining selectable
+- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
 
