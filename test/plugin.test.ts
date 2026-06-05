@@ -315,6 +315,14 @@ describe('rehypeFluentEmoji', () => {
 			)
 		})
 
+		it('uses PNG assets by default for the 3d style', async () => {
+			const result = await process('<p>😺</p>', { style: '3d' })
+
+			expect(result).toContain(
+				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_3d.png)`,
+			)
+		})
+
 		it('supports custom className', async () => {
 			const result = await process('<p>😺</p>', { className: 'emoji-img' })
 

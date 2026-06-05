@@ -8,6 +8,8 @@ import {
 } from './constants.js'
 import { resolveAssetSource } from './resolve-asset-source.js'
 
+export type FluentEmojiStyle = '3d' | 'color' | 'flat' | 'high-contrast'
+
 export interface RehypeFluentEmojiOptions {
 	/** Base URL for emoji assets in generated HTML. @default '/emoji' */
 	assetBase?: string
@@ -30,8 +32,12 @@ export interface RehypeFluentEmojiOptions {
 	cwd?: string
 	/** File extension for emoji assets. @default 'svg' */
 	ext?: string
-	/** Fluent Emoji visual style. @default 'color' */
-	style?: 'color' | 'flat' | 'high-contrast'
+	/**
+	 * Fluent Emoji visual style.
+	 * The `3d` style uses PNG assets by default.
+	 * @default 'color'
+	 */
+	style?: FluentEmojiStyle
 	/**
 	 * Optional title resolver for generated spans.
 	 * Return `undefined` to omit the title attribute.
@@ -46,7 +52,7 @@ export interface ResolvedOptions {
 	className: string
 	cwd: string
 	ext: string
-	style: 'color' | 'flat' | 'high-contrast'
+	style: FluentEmojiStyle
 	title?: (emoji: string) => string | undefined
 }
 
@@ -69,11 +75,15 @@ export function resolveOptions(
 	const assetRepository = options?.assetRepository ?? DEFAULT_ASSET_REPOSITORY
 	const assetRepositoryBranch = options?.assetRepositoryBranch
 		?? DEFAULT_ASSET_REPOSITORY_BRANCH
+	const style = options?.style ?? defaultOptions.style
+	const ext = options?.ext ?? (style === '3d' ? 'png' : defaultOptions.ext)
 
 	return {
 		...defaultOptions,
 		...options,
 		assetSource: resolveAssetSource(assetRepository, assetRepositoryBranch),
 		cwd: options?.cwd ?? defaultOptions.cwd,
+		ext,
+		style,
 	}
 }

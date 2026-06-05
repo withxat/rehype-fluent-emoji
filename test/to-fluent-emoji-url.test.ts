@@ -25,4 +25,13 @@ describe('toFluentEmojiUrl', () => {
 			}),
 		).toBe('https://cdn.example.com/emoji/1f44d-1f3fb_flat.png')
 	})
+
+	it('supports 3d PNG asset URLs', () => {
+		expect(
+			toFluentEmojiUrl('😺', {
+				ext: 'png',
+				style: '3d',
+			}),
+		).toBe('/emoji/1f63a_3d.png')
+	})
 })

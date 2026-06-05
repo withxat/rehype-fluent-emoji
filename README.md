@@ -145,9 +145,9 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 | `assetRepository` | `string` | `withxat/fluentui-emoji-unicode` | GitHub repo URL, shorthand, or raw asset base used when downloading |
 | `assetRepositoryBranch` | `string` | `'main'` | Git ref used with `assetRepository` when the URL does not include a branch |
 | `cwd` | `string` | `process.cwd()` | Project root used to resolve `assetOutputDir` |
-| `ext` | `string` | `'svg'` | File extension for emoji assets |
+| `ext` | `string` | `'svg'` (`'png'` for `style: '3d'`) | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
-| `style` | `'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
+| `style` | `'3d' \| 'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
 | `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
 
 #### Asset repository
@@ -183,6 +183,7 @@ Examples:
 | Emoji | Filename |
 | --- | --- |
 | 😺 | `1f63a_color.svg` |
+| 😺 with `style: '3d'` | `1f63a_3d.png` |
 | 👍🏻 | `1f44d-1f3fb_color.svg` |
 | 👨‍👩‍👧‍👦 | `1f468-200d-1f469-200d-1f467-200d-1f466_color.svg` |
 | 🇺🇸 | `1f1fa-1f1f8_color.svg` |
@@ -210,7 +211,20 @@ import { toFluentEmojiUrl } from 'rehype-fluent-emoji'
 
 toFluentEmojiUrl('😺') // '/emoji/1f63a_color.svg'
 toFluentEmojiUrl('👍🏻', { style: 'flat', ext: 'png' }) // '/emoji/1f44d-1f3fb_flat.png'
+toFluentEmojiUrl('😺', { style: '3d', ext: 'png' }) // '/emoji/1f63a_3d.png'
 ```
+
+### Safari rendering
+
+The default `color` assets are SVG files and some Fluent Emoji icons use SVG filters for shadows and highlights. Safari can render those filtered SVGs softly, especially on Retina displays. Use `style: '3d'` to reference PNG assets, or `style: 'flat'` for filter-free SVG assets.
+
+```ts
+rehypeFluentEmoji({
+  style: '3d',
+})
+```
+
+When `style` is `3d`, the plugin uses `png` as the default `ext`.
 
 ### Types
 
