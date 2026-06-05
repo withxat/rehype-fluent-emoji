@@ -1,4 +1,3 @@
-export { EMOJI_SIZE, FLUENT_EMOJI_CSS } from './fluent-emoji-style.js'
 export type { RehypeFluentEmojiOptions } from './options.js'
 export { rehypeFluentEmoji } from './plugin.js'
 

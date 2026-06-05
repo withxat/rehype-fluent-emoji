@@ -5,7 +5,11 @@ import rehypeStringify from 'rehype-stringify'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 
+import { DEFAULT_ASSET_BASE } from '../src/constants.js'
 import { rehypeFluentEmoji } from '../src/plugin.js'
+
+const defaultEmojiUrl = (file: string) =>
+	`background-image:url(${DEFAULT_ASSET_BASE}/${file})`
 
 async function process(html: string, options?: Parameters<typeof rehypeFluentEmoji>[0]) {
 	const file = await unified()
@@ -85,8 +89,9 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('class="fluent-emoji-text"')
 			expect(result).toContain('class="fluent-emoji-visual"')
 			expect(result).toContain('data-fluent-emoji')
-			expect(result).toContain('background:url(/emoji/1f63a_color.svg)')
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
 			expect(result).toContain('>😺</span>')
+			expect(result).not.toContain('background-clip:text')
 			expect(result).not.toContain('<img')
 			expect(result).not.toContain('role=')
 		})
@@ -94,15 +99,18 @@ describe('rehypeFluentEmoji', () => {
 		it('replaces multiple emoji in one text node', async () => {
 			const result = await process('<p>Hello 😺 world 👍</p>')
 
-			expect(result).toContain('background:url(/emoji/1f63a_color.svg)')
-			expect(result).toContain('background:url(/emoji/1f44d_color.svg)')
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
+			expect(result).toContain(defaultEmojiUrl('1f44d_color.svg'))
 			expect(result).toContain('Hello')
 			expect(result).toContain('world')
 		})
 
 		it('handles mixed text and emoji', () => {
 			const tree = processTree('<p>Hi 😺 there</p>')
-			const paragraph = tree.children[0] as Element
+			const paragraph = tree.children.find(
+				(child): child is Element =>
+					child.type === 'element' && child.tagName === 'p',
+			)!
 
 			expect(paragraph.children).toHaveLength(3)
 			expect((paragraph.children[0] as Text).value).toBe('Hi ')
@@ -112,7 +120,10 @@ describe('rehypeFluentEmoji', () => {
 
 		it('handles adjacent emoji', () => {
 			const tree = processTree('<p>😺👍</p>')
-			const paragraph = tree.children[0] as Element
+			const paragraph = tree.children.find(
+				(child): child is Element =>
+					child.type === 'element' && child.tagName === 'p',
+			)!
 
 			expect(paragraph.children).toHaveLength(2)
 			expect(getEmojiTextSpan(paragraph.children[0] as Element).children[0]).toEqual({
@@ -129,7 +140,7 @@ describe('rehypeFluentEmoji', () => {
 			const result = await process('<p><strong>😺</strong></p>')
 
 			expect(result).toContain('<strong>')
-			expect(result).toContain('background:url(/emoji/1f63a_color.svg)')
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
 		})
 
 		it('ignores emoji inside inline code', async () => {
@@ -159,7 +170,7 @@ describe('rehypeFluentEmoji', () => {
 	})
 
 	describe('accessibility and copy', () => {
-		it('keeps the emoji character in a visually hidden text layer', () => {
+		it('keeps the emoji character in a text layer for copy and screen readers', () => {
 			const tree = processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
 			const textSpan = getEmojiTextSpan(span)
@@ -169,39 +180,25 @@ describe('rehypeFluentEmoji', () => {
 			expect(span.properties.ariaHidden).toBeUndefined()
 		})
 
-		it('renders the fluent emoji background on the visual span', () => {
+		it('renders only the background image inline on the visual layer', () => {
 			const tree = processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
 			const visualSpan = getEmojiVisualSpan(span)
 
-			expect(String(span.properties.style)).not.toContain('background:url')
-			expect(visualSpan.properties.style).toContain('/emoji/1f63a_color.svg')
-			expect(visualSpan.properties.style).toContain('background:url')
-			expect(visualSpan.properties.style).toContain('z-index:1')
+			expect(span.properties.style).toBeUndefined()
+			expect(visualSpan.properties.style).toBe(
+				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_color.svg)`,
+			)
 			expect(visualSpan.properties.ariaHidden).toBe('true')
 		})
 
-		it('hides the unicode glyph while keeping it selectable for copy', () => {
-			const tree = processTree('<p>😺</p>')
-			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
+		it('keeps shared text styles in the injected stylesheet', async () => {
+			const result = await process('<p>😺</p>')
+			const textSpan = getEmojiTextSpan(getEmojiSpans(processTree('<p>😺</p>'))[0]!)
 
-			expect(textSpan.properties.style).toContain('display:inline-block')
-			expect(textSpan.properties.style).toContain('position:relative')
-			expect(textSpan.properties.style).toContain('z-index:0')
-			expect(textSpan.properties.style).toContain('width:100%')
-			expect(textSpan.properties.style).toContain('height:100%')
-			expect(textSpan.properties.style).toContain('line-height:1')
-			expect(textSpan.properties.style).toContain('user-select:text')
-			expect(textSpan.properties.style).toContain('-webkit-user-select:text')
-			expect(textSpan.properties.style).toContain('pointer-events:none')
-			expect(textSpan.properties.style).toContain('color:transparent!important')
-			expect(textSpan.properties.style).toContain(
-				'-webkit-text-fill-color:transparent!important',
-			)
-			expect(textSpan.properties.style).not.toContain('opacity:0')
-			expect(textSpan.properties.style).not.toContain('font-size:0')
-			expect(textSpan.properties.style).not.toContain('user-select:none')
-			expect(textSpan.properties.style).not.toContain('clip:')
+			expect(textSpan.properties.style).toBeUndefined()
+			expect(result).toContain('.fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent')
+			expect(result).toContain('.fluent-emoji-visual{position:absolute;inset:0;z-index:1')
 		})
 
 		it('omits title by default', () => {
@@ -230,6 +227,42 @@ describe('rehypeFluentEmoji', () => {
 		})
 	})
 
+	describe('shared style', () => {
+		it('injects a shared style element when emoji are replaced', async () => {
+			const result = await process('<p>Hello 😺</p>')
+
+			expect(result).toContain('data-fluent-emoji-style')
+			expect(result).toContain('.fluent-emoji{position:relative}')
+			expect(result).toContain('.fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}')
+		})
+
+		it('does not inject a style element when no emoji is replaced', async () => {
+			const result = await process('<p>Hello world</p>')
+
+			expect(result).not.toContain('data-fluent-emoji-style')
+		})
+
+		it('injects the style element into head for full documents', async () => {
+			const file = await unified()
+				.use(rehypeParse)
+				.use(rehypeFluentEmoji)
+				.use(rehypeStringify)
+				.process('<!doctype html><html><head><title>Test</title></head><body><p>😺</p></body></html>')
+
+			const result = String(file)
+
+			expect(result).toContain('<head><style data-fluent-emoji-style')
+			expect(result).not.toMatch(/<body><style data-fluent-emoji-style>/)
+		})
+
+		it('uses the custom class name in the injected shared style', async () => {
+			const result = await process('<p>😺</p>', { className: 'emoji-img' })
+
+			expect(result).toContain('.emoji-img{position:relative}')
+			expect(result).toContain('.emoji-img-text::selection{color:transparent;-webkit-text-fill-color:transparent}')
+		})
+	})
+
 	describe('options', () => {
 		it('supports custom assetBase', async () => {
 			const result = await process('<p>😺</p>', {
@@ -237,7 +270,7 @@ describe('rehypeFluentEmoji', () => {
 			})
 
 			expect(result).toContain(
-				'background:url(https://cdn.example.com/emoji/1f63a_color.svg)',
+				'background-image:url(https://cdn.example.com/emoji/1f63a_color.svg)',
 			)
 		})
 
@@ -247,7 +280,9 @@ describe('rehypeFluentEmoji', () => {
 				style: 'flat',
 			})
 
-			expect(result).toContain('background:url(/emoji/1f44d-1f3fb_flat.png)')
+			expect(result).toContain(
+				`background-image:url(${DEFAULT_ASSET_BASE}/1f44d-1f3fb_flat.png)`,
+			)
 		})
 
 		it('supports custom className', async () => {
@@ -258,29 +293,15 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('class="emoji-img-visual"')
 		})
 
-		it('supports inlineStyle: false with css variable on the visual span', () => {
-			const tree = processTree('<p>😺</p>', { inlineStyle: false })
-			const span = getEmojiSpans(tree)[0]!
-			const visualSpan = getEmojiVisualSpan(span)
+		it('builds asset URLs for complex emoji', async () => {
+			const result = await process('<p>👨‍👩‍👧‍👦 🇺🇸 🏳️‍⚧️</p>')
 
-			expect(span.properties.style).toBeUndefined()
-			expect(visualSpan.properties.style).toBe(
-				'--fluent-emoji-url:url(/emoji/1f63a_color.svg)',
+			expect(result).toContain(
+				`${DEFAULT_ASSET_BASE}/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg`,
 			)
-		})
-
-		it('builds asset URLs for complex emoji', () => {
-			const tree = processTree('<p>👨‍👩‍👧‍👦 🇺🇸 🏳️‍⚧️</p>')
-			const spans = getEmojiSpans(tree)
-
-			expect(getEmojiVisualSpan(spans[0]!).properties.style).toContain(
-				'/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg',
-			)
-			expect(getEmojiVisualSpan(spans[1]!).properties.style).toContain(
-				'/emoji/1f1fa-1f1f8_color.svg',
-			)
-			expect(getEmojiVisualSpan(spans[2]!).properties.style).toContain(
-				'/emoji/1f3f3-fe0f-200d-26a7-fe0f_color.svg',
+			expect(result).toContain(`${DEFAULT_ASSET_BASE}/1f1fa-1f1f8_color.svg`)
+			expect(result).toContain(
+				`${DEFAULT_ASSET_BASE}/1f3f3-fe0f-200d-26a7-fe0f_color.svg`,
 			)
 		})
 	})

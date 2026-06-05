@@ -4,7 +4,7 @@ import { defaultOptions } from './options.js'
 import { toFluentEmojiCode } from './to-fluent-emoji-code.js'
 
 export interface FluentEmojiUrlOptions {
-	/** Base URL path for emoji assets. @default '/emoji' */
+	/** Base URL for emoji assets. @default jsDelivr CDN for fluentui-emoji-unicode */
 	assetBase?: string
 	/** File extension for emoji assets. @default 'svg' */
 	ext?: string

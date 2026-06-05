@@ -3,9 +3,7 @@ import type { Element, Properties } from 'hast'
 import type { ResolvedOptions } from './options.js'
 
 import {
-	buildRootStyle,
-	buildTextStyle,
-	buildVisualStyle,
+	buildVisualBackgroundStyle,
 	getEmojiClassNames,
 } from './fluent-emoji-style.js'
 import { toFluentEmojiUrl } from './to-fluent-emoji-url.js'
@@ -15,24 +13,11 @@ export function createEmojiSpan(
 	emoji: string,
 	options: ResolvedOptions,
 ): Element {
-	const url = toFluentEmojiUrl(emoji, options)
 	const classNames = getEmojiClassNames(options.className)
 
 	const properties: Properties = {
 		className: classNames.root,
 		dataFluentEmoji: '',
-	}
-
-	const rootStyle = buildRootStyle(options.inlineStyle)
-
-	if (rootStyle) {
-		properties.style = rootStyle
-	}
-
-	const title = options.title?.(emoji)
-
-	if (title !== undefined) {
-		properties.title = title
 	}
 
 	const textProperties: Properties = {
@@ -42,13 +27,13 @@ export function createEmojiSpan(
 	const visualProperties: Properties = {
 		ariaHidden: 'true',
 		className: classNames.visual,
-		style: buildVisualStyle(url, options.inlineStyle),
+		style: buildVisualBackgroundStyle(toFluentEmojiUrl(emoji, options)),
 	}
 
-	const textStyle = buildTextStyle(options.inlineStyle)
+	const title = options.title?.(emoji)
 
-	if (textStyle) {
-		textProperties.style = textStyle
+	if (title !== undefined) {
+		properties.title = title
 	}
 
 	return {

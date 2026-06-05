@@ -23,7 +23,6 @@ import rehypeFluentEmoji from 'rehype-fluent-emoji'
 const file = await rehype()
   .data('settings', {fragment: true})
   .use(rehypeFluentEmoji, {
-    assetBase: '/emoji',
     style: 'color',
     ext: 'svg',
     className: 'fluent-emoji'
@@ -42,7 +41,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle"><span class="fluent-emoji-text" style="display:inline-block;position:relative;z-index:0;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;color:transparent!important;-webkit-text-fill-color:transparent!important">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"></span></span></p>
+<style data-fluent-emoji-style>.fluent-emoji{position:relative}.fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent;user-select:text;-webkit-user-select:text}.fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}.fluent-emoji-visual{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:1em 1em;background-repeat:no-repeat}</style><p>Hello <span class="fluent-emoji" data-fluent-emoji><span class="fluent-emoji-text">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="background-image:url(https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg)"></span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -51,11 +50,12 @@ console.log(String(file))
 - **Screen reader friendly** — assistive technology reads the emoji character naturally
 - **Lightbox-safe** — common image zoom/lightbox libraries target `<img>` and usually ignore `<span>`
 
-Each emoji uses three layers:
+Each emoji uses two layers inside a root `<span>`:
 
-1. **Root `<span>`** — `1em` layout box with relative positioning
-2. **Text layer** — the original Unicode character, kept transparent and selectable so copying selected text preserves the emoji while custom selection backgrounds can still render
-3. **Visual layer** — an `aria-hidden` overlay with the Fluent Emoji background, kept above the text layer so the SVG renders over the selected text
+1. **Text layer** — the original Unicode character underneath, kept transparent and selectable for copy, screen readers, and selection
+2. **Visual layer** — an `aria-hidden` background image rendered on top so Fluent Emoji stays visible during selection
+
+`pointer-events: none` on the visual layer keeps the text layer selectable. The plugin injects one shared `<style data-fluent-emoji-style>` element for layout and selection rules, and only sets per-emoji `background-image` inline on the visual layer.
 
 ## Examples
 
@@ -102,10 +102,9 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `assetBase` | `string` | `'/emoji'` | Base URL or path for emoji assets |
+| `assetBase` | `string` | jsDelivr CDN | Base URL for emoji assets |
 | `ext` | `string` | `'svg'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
-| `inlineStyle` | `boolean` | `true` | Emit full inline styles for each span |
 | `style` | `'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
 | `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
 
@@ -145,28 +144,11 @@ Utility that converts an emoji string to a Fluent Emoji asset URL using the same
 ```ts
 import {toFluentEmojiUrl} from 'rehype-fluent-emoji'
 
-toFluentEmojiUrl('😺') // '/emoji/1f63a_color.svg'
-toFluentEmojiUrl('👍🏻', {assetBase: 'https://cdn.example.com/emoji', style: 'flat', ext: 'png'})
-// 'https://cdn.example.com/emoji/1f44d-1f3fb_flat.png'
+toFluentEmojiUrl('😺')
+// 'https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg'
+toFluentEmojiUrl('👍🏻', {assetBase: '/emoji', style: 'flat', ext: 'png'})
+// '/emoji/1f44d-1f3fb_flat.png'
 ```
-
-### `FLUENT_EMOJI_CSS`
-
-Recommended stylesheet for shared styles and selection-state fixes:
-
-```ts
-import {FLUENT_EMOJI_CSS} from 'rehype-fluent-emoji'
-
-// Inject into your app CSS bundle or a <style> tag
-```
-
-```ts
-rehypeFluentEmoji({inlineStyle: false})
-```
-
-When using `inlineStyle: false`, each visual layer only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
-
-`FLUENT_EMOJI_CSS` is also useful with the default inline styles because `::selection` cannot be represented in a `style` attribute. Its selection rule keeps the Unicode glyph transparent during selection without overriding the site's selection background.
 
 ### Types
 
@@ -176,10 +158,11 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 
 ## Accessibility
 
-Each emoji becomes a `<span>` with a hidden text child and a visual overlay:
+Each emoji becomes a `<span>` with a transparent text child and a visual background layer underneath:
 
-- **Visual layer** — Fluent Emoji image on a `1em` inline box
-- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable and letting selection backgrounds render; include `FLUENT_EMOJI_CSS` to force this in `::selection`
+- **Text layer** — the emoji character itself for screen readers and copy, kept transparent while remaining selectable
+- **Visual layer** — Fluent Emoji image rendered above the text layer so it stays visible during selection
+- **Shared CSS** — the plugin injects one `<style data-fluent-emoji-style>` tag for layout, selection, and visual-layer rules
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
 
@@ -191,15 +174,15 @@ The `data-fluent-emoji` attribute is also available if you need an explicit excl
 
 ## Asset requirements
 
-This plugin does **not** bundle Fluent Emoji assets. Host flattened Unicode-named files yourself or use a CDN such as [fluentui-emoji-unicode](https://github.com/shuding/fluentui-emoji-unicode):
+This plugin does **not** bundle Fluent Emoji assets. By default it loads flattened Unicode-named files from [fluentui-emoji-unicode](https://github.com/shuding/fluentui-emoji-unicode) via jsDelivr:
 
 ```
-/emoji/1f63a_color.svg
-/emoji/1f44d-1f3fb_color.svg
-/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg
+https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg
+https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f44d-1f3fb_color.svg
+https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg
 ```
 
-Point `assetBase` at your asset directory or CDN root.
+Override `assetBase` if you want to self-host the same filenames locally.
 
 ## SSR support
 

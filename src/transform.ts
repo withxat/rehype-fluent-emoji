@@ -7,6 +7,7 @@ import { SKIP, visit } from 'unist-util-visit'
 
 import { IGNORED_ELEMENTS } from './constants.js'
 import { createEmojiSpan } from './create-emoji-span.js'
+import { injectEmojiStyle } from './inject-emoji-style.js'
 
 const globalEmojiRegex = new RegExp(emojiRegex(), 'g')
 
@@ -63,6 +64,7 @@ function splitTextNode(
 /** Replace emoji in text nodes with Fluent Emoji `<span>` elements. */
 export function transformTree(tree: Root, options: ResolvedOptions): void {
 	const ignored = markIgnoredNodes(tree)
+	let hasEmoji = false
 
 	visit(tree, 'text', (node, index, parent) => {
 		if (!parent || index === undefined || ignored.has(node)) {
@@ -75,8 +77,13 @@ export function transformTree(tree: Root, options: ResolvedOptions): void {
 			return
 		}
 
+		hasEmoji = true
 		;(parent as Parents).children.splice(index, 1, ...nodes)
 
 		return [SKIP, index + nodes.length]
 	})
+
+	if (hasEmoji) {
+		injectEmojiStyle(tree, options.className)
+	}
 }
