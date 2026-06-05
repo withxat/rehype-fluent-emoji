@@ -152,7 +152,7 @@ toFluentEmojiUrl('👍🏻', {assetBase: 'https://cdn.example.com/emoji', style:
 
 ### `FLUENT_EMOJI_CSS`
 
-Recommended stylesheet when using `inlineStyle: false`:
+Recommended stylesheet for shared styles and selection-state fixes:
 
 ```ts
 import {FLUENT_EMOJI_CSS} from 'rehype-fluent-emoji'
@@ -164,7 +164,9 @@ import {FLUENT_EMOJI_CSS} from 'rehype-fluent-emoji'
 rehypeFluentEmoji({inlineStyle: false})
 ```
 
-Each visual layer then only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
+When using `inlineStyle: false`, each visual layer only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
+
+`FLUENT_EMOJI_CSS` is also useful with the default inline styles because `::selection` cannot be represented in a `style` attribute. Its selection rule keeps the Unicode glyph transparent during selection without overriding the site's selection background.
 
 ### Types
 
@@ -177,7 +179,7 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 Each emoji becomes a `<span>` with a hidden text child and a visual overlay:
 
 - **Visual layer** — Fluent Emoji image on a `1em` inline box
-- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable and letting selection backgrounds render
+- **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable and letting selection backgrounds render; include `FLUENT_EMOJI_CSS` to force this in `::selection`
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
 

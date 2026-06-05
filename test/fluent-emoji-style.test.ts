@@ -81,7 +81,9 @@ describe('fLUENT_EMOJI_CSS', () => {
 		expect(FLUENT_EMOJI_CSS).toContain('.fluent-emoji-visual')
 		expect(FLUENT_EMOJI_CSS).toContain('background-image: var(--fluent-emoji-url)')
 		expect(FLUENT_EMOJI_CSS).toContain('z-index: 1')
-		expect(FLUENT_EMOJI_CSS).toContain('::selection')
+		expect(FLUENT_EMOJI_CSS).toContain(
+			'.fluent-emoji[data-fluent-emoji] > .fluent-emoji-text::selection',
+		)
 		expect(FLUENT_EMOJI_CSS).toContain('line-height: 1')
 		expect(FLUENT_EMOJI_CSS).toContain('user-select: text')
 		expect(FLUENT_EMOJI_CSS).toContain('color: transparent !important')
