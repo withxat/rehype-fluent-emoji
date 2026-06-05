@@ -49,10 +49,10 @@ The plugin is async because it downloads used emoji assets during processing.
 
 ```html
 <style data-fluent-emoji-style>
-.fluent-emoji{position:relative;display:inline-block;width:1em;height:1em;line-height:1;vertical-align:-0.125em}
+.fluent-emoji{position:relative}
 .fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent;user-select:text;-webkit-user-select:text}
 .fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}
-.fluent-emoji-visual{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:100% 100%;background-repeat:no-repeat}
+.fluent-emoji-visual{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:1em 1em;background-repeat:no-repeat}
 </style>
 <p>
   Hello

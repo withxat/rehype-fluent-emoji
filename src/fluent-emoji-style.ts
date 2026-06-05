@@ -20,10 +20,10 @@ export function buildSharedStyle(className: string): string {
 	const { root, text, visual } = getEmojiClassNames(className)
 
 	return [
-		`.${root}{position:relative;display:inline-block;width:${EMOJI_SIZE};height:${EMOJI_SIZE};line-height:1;vertical-align:-0.125em}`,
+		`.${root}{position:relative}`,
 		`.${text}{color:transparent;-webkit-text-fill-color:transparent;user-select:text;-webkit-user-select:text}`,
 		`.${text}::selection{color:transparent;-webkit-text-fill-color:transparent}`,
-		`.${visual}{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:100% 100%;background-repeat:no-repeat}`,
+		`.${visual}{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:${EMOJI_SIZE} ${EMOJI_SIZE};background-repeat:no-repeat}`,
 	].join('')
 }
 

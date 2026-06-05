@@ -262,7 +262,7 @@ describe('rehypeFluentEmoji', () => {
 			const result = await process('<p>Hello 😺</p>')
 
 			expect(result).toContain('data-fluent-emoji-style')
-			expect(result).toContain('.fluent-emoji{position:relative;display:inline-block')
+			expect(result).toContain('.fluent-emoji{position:relative}')
 			expect(result).toContain('.fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}')
 		})
 
@@ -288,7 +288,7 @@ describe('rehypeFluentEmoji', () => {
 		it('uses the custom class name in the injected shared style', async () => {
 			const result = await process('<p>😺</p>', { className: 'emoji-img' })
 
-			expect(result).toContain('.emoji-img{position:relative;display:inline-block')
+			expect(result).toContain('.emoji-img{position:relative}')
 			expect(result).toContain('.emoji-img-text::selection{color:transparent;-webkit-text-fill-color:transparent}')
 		})
 	})
