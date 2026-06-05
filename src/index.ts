@@ -3,3 +3,5 @@ export { rehypeFluentEmoji } from './plugin.js'
 export { rehypeFluentEmoji as default } from './plugin.js'
 
 export { toFluentEmojiCode } from './to-fluent-emoji-code.js'
+export type { FluentEmojiUrlOptions } from './to-fluent-emoji-url.js'
+export { toFluentEmojiUrl } from './to-fluent-emoji-url.js'

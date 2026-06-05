@@ -4,7 +4,7 @@
 
 A [rehype](https://github.com/rehypejs/rehype) plugin that replaces Unicode emoji in text nodes with [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) images.
 
-Works at the HAST (rehype) stage, is SSR-safe, and produces accessible `<img>` elements with CLDR emoji labels.
+Works at the HAST (rehype) stage, is SSR-safe, and produces accessible `<img>` elements that point at flattened Unicode Fluent Emoji asset paths.
 
 ## Installation
 
@@ -42,7 +42,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" title="grinning cat" class="fluent-emoji"></p>
+<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" class="fluent-emoji"></p>
 ```
 
 ## Examples
@@ -58,7 +58,7 @@ console.log(String(file))
 **Output**
 
 ```html
-<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" title="grinning cat" class="fluent-emoji"> world <img src="/emoji/1f44d_color.svg" alt="👍" title="thumbs up" class="fluent-emoji"></p>
+<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" class="fluent-emoji"> world <img src="/emoji/1f44d_color.svg" alt="👍" class="fluent-emoji"></p>
 ```
 
 ### Skin tone and ZWJ sequences
@@ -71,8 +71,8 @@ becomes
 
 ```html
 <p>
-  <img src="/emoji/1f44d-1f3fb_color.svg" alt="👍🏻" title="thumbs up: light skin tone" class="fluent-emoji">
-  <img src="/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg" alt="👨‍👩‍👧‍👦" title="family: man, woman, girl, boy" class="fluent-emoji">
+  <img src="/emoji/1f44d-1f3fb_color.svg" alt="👍🏻" class="fluent-emoji">
+  <img src="/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg" alt="👨‍👩‍👧‍👦" class="fluent-emoji">
 </p>
 ```
 
@@ -101,11 +101,15 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 | `ext` | `string` | `'svg'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated images |
 | `style` | `'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
-| `title` | `boolean \| (emoji: string) => string \| undefined` | `true` | Title attribute behavior |
+| `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
 
-When `title` is `true` (default), CLDR emoji labels from [emojibase-data](https://github.com/milesj/emojibase) are used. If no label is available, the `title` attribute is omitted.
+By default, the plugin does not emit a `title` attribute. Pass a function when you want custom titles:
 
-Set `title: false` to never emit a title. Pass a function for custom titles.
+```ts
+rehypeFluentEmoji({
+  title: emoji => `Emoji: ${emoji}`
+})
+```
 
 #### Generated asset paths
 
@@ -136,6 +140,18 @@ toFluentEmojiCode('😺') // '1f63a'
 toFluentEmojiCode('🏳️‍⚧️') // '1f3f3-fe0f-200d-26a7-fe0f'
 ```
 
+### `toFluentEmojiUrl(emoji, options?)`
+
+Utility that converts an emoji string to a Fluent Emoji asset URL using the same flattened Unicode path format as the plugin.
+
+```ts
+import {toFluentEmojiUrl} from 'rehype-fluent-emoji'
+
+toFluentEmojiUrl('😺') // '/emoji/1f63a_color.svg'
+toFluentEmojiUrl('👍🏻', {assetBase: 'https://cdn.example.com/emoji', style: 'flat', ext: 'png'})
+// 'https://cdn.example.com/emoji/1f44d-1f3fb_flat.png'
+```
+
 ### Types
 
 ```ts
@@ -147,7 +163,7 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 Each emoji is replaced with a semantic `<img>` element:
 
 - **`alt`** — the original emoji character, so assistive technology can convey the symbol
-- **`title`** — a human-readable CLDR label (for example, `grinning cat`) when available
+- **Optional `title`** — emitted only when you provide a custom title resolver
 - **No `aria-hidden`** — images are not hidden from assistive technology
 - **No `role="presentation"`** — images are not stripped of meaning
 

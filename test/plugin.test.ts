@@ -62,7 +62,7 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('class="fluent-emoji"')
 			expect(result).toContain('src="/emoji/1f63a_color.svg"')
 			expect(result).toContain('alt="😺"')
-			expect(result).toContain('title="grinning cat"')
+			expect(result).not.toContain('title=')
 			expect(result).not.toContain('aria-hidden')
 			expect(result).not.toContain('role=')
 		})
@@ -133,18 +133,17 @@ describe('rehypeFluentEmoji', () => {
 	})
 
 	describe('accessibility', () => {
-		it('sets alt, title, class, and src', () => {
+		it('sets alt, class, and src', () => {
 			const tree = processTree('<p>😺</p>')
 			const image = getImages(tree)[0]!
 
 			expect(image.properties.alt).toBe('😺')
-			expect(image.properties.title).toBe('grinning cat')
 			expect(image.properties.className).toBe('fluent-emoji')
 			expect(image.properties.src).toBe('/emoji/1f63a_color.svg')
 		})
 
-		it('omits title when title is false', () => {
-			const tree = processTree('<p>😺</p>', { title: false })
+		it('omits title by default', () => {
+			const tree = processTree('<p>😺</p>')
 			const image = getImages(tree)[0]!
 
 			expect(image.properties.title).toBeUndefined()
@@ -204,13 +203,14 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('class="emoji-img"')
 		})
 
-		it('resolves CLDR titles for complex emoji', () => {
+		it('builds asset URLs for complex emoji', () => {
 			const tree = processTree('<p>👨‍👩‍👧‍👦 🇺🇸 🏳️‍⚧️</p>')
 			const images = getImages(tree)
 
-			expect(images[0]!.properties.title).toBe('family: man, woman, girl, boy')
+			expect(images[0]!.properties.src).toBe(
+				'/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg',
+			)
 			expect(images[1]!.properties.src).toBe('/emoji/1f1fa-1f1f8_color.svg')
-			expect(images[2]!.properties.title).toBe('transgender flag')
 			expect(images[2]!.properties.src).toBe(
 				'/emoji/1f3f3-fe0f-200d-26a7-fe0f_color.svg',
 			)

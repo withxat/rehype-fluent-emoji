@@ -8,13 +8,10 @@ export interface RehypeFluentEmojiOptions {
 	/** Fluent Emoji visual style. @default 'color' */
 	style?: 'color' | 'flat' | 'high-contrast'
 	/**
-	 * Title attribute for generated images.
-	 * - `true`: use CLDR emoji labels from emojibase-data
-	 * - `false`: omit the title attribute
-	 * - function: custom resolver per emoji
-	 * @default true
+	 * Optional title resolver for generated images.
+	 * Return `undefined` to omit the title attribute.
 	 */
-	title?: ((emoji: string) => string | undefined) | boolean
+	title?: (emoji: string) => string | undefined
 }
 
 export interface ResolvedOptions {
@@ -22,7 +19,7 @@ export interface ResolvedOptions {
 	className: string
 	ext: string
 	style: 'color' | 'flat' | 'high-contrast'
-	title: ((emoji: string) => string | undefined) | boolean
+	title?: (emoji: string) => string | undefined
 }
 
 export const defaultOptions: ResolvedOptions = {
@@ -30,7 +27,6 @@ export const defaultOptions: ResolvedOptions = {
 	className: 'fluent-emoji',
 	ext: 'svg',
 	style: 'color',
-	title: true,
 }
 
 export function resolveOptions(
