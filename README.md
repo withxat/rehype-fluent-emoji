@@ -42,7 +42,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;pointer-events:none;user-select:none;-webkit-user-select:none;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);font-size:0;line-height:0;white-space:nowrap;border:0;pointer-events:none;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -54,7 +54,7 @@ console.log(String(file))
 Each emoji uses two layers:
 
 1. **Root `<span>`** — `1em` layout box with the Fluent Emoji `background-image`
-2. **Text layer** — the original Unicode character, visually hidden with `clip` and `clip-path`, then made transparent during selection so the Fluent Emoji background stays visible when selected
+2. **Text layer** — the original Unicode character, kept at zero font size for copy and screen readers so native selection has no glyph to paint over the Fluent Emoji background
 
 ## Examples
 
@@ -176,7 +176,7 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 Each emoji becomes a `<span>` with a hidden text child:
 
 - **Root background** — Fluent Emoji image on a `1em` inline box
-- **Text layer** — the emoji glyph itself for screen readers and copy, but not painted during text selection
+- **Text layer** — the emoji glyph itself for screen readers and copy, rendered at zero font size so it is not painted during text selection
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
 

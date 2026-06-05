@@ -172,8 +172,10 @@ describe('rehypeFluentEmoji', () => {
 
 			expect(textSpan.properties.style).toContain('clip:rect(0,0,0,0)')
 			expect(textSpan.properties.style).toContain('clip-path:inset(50%)')
-			expect(textSpan.properties.style).toContain('user-select:none')
+			expect(textSpan.properties.style).toContain('font-size:0')
+			expect(textSpan.properties.style).toContain('line-height:0')
 			expect(textSpan.properties.style).toContain('pointer-events:none')
+			expect(textSpan.properties.style).not.toContain('user-select:none')
 			expect(textSpan.properties.style).toContain('color:transparent')
 			expect(textSpan.properties.style).toContain('-webkit-text-fill-color:transparent')
 		})

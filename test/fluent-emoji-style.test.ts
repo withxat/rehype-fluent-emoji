@@ -39,6 +39,8 @@ describe('buildTextStyle', () => {
 
 		expect(style).toContain('clip:rect(0,0,0,0)')
 		expect(style).toContain('clip-path:inset(50%)')
+		expect(style).toContain('font-size:0')
+		expect(style).toContain('line-height:0')
 		expect(style).toContain('margin:-1px')
 		expect(style).toContain('-webkit-text-fill-color:transparent')
 	})
@@ -54,6 +56,8 @@ describe('fLUENT_EMOJI_CSS', () => {
 		expect(FLUENT_EMOJI_CSS).toContain('background-image: var(--fluent-emoji-url)')
 		expect(FLUENT_EMOJI_CSS).toContain('::selection')
 		expect(FLUENT_EMOJI_CSS).toContain('clip-path: inset(50%)')
+		expect(FLUENT_EMOJI_CSS).toContain('font-size: 0')
+		expect(FLUENT_EMOJI_CSS).toContain('line-height: 0')
 		expect(FLUENT_EMOJI_CSS).toContain('-webkit-text-fill-color: transparent')
 	})
 })
