@@ -173,6 +173,8 @@ describe('rehypeFluentEmoji', () => {
 			expect(textSpan.properties.style).toContain('display:inline-block')
 			expect(textSpan.properties.style).toContain('width:100%')
 			expect(textSpan.properties.style).toContain('height:100%')
+			expect(textSpan.properties.style).toContain('font-size:0')
+			expect(textSpan.properties.style).toContain('line-height:0')
 			expect(textSpan.properties.style).toContain('user-select:text')
 			expect(textSpan.properties.style).toContain('-webkit-user-select:text')
 			expect(textSpan.properties.style).toContain('pointer-events:none')
