@@ -180,6 +180,20 @@ describe('rehypeFluentEmoji', () => {
 			expect(textSpan.properties.style).toContain('-webkit-text-fill-color:transparent')
 		})
 
+		it('prevents the native emoji glyph from bleeding through selected text', () => {
+			const tree = processTree('<p>Hello 😺 world</p>')
+			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
+			const style = String(textSpan.properties.style)
+
+			expect(textSpan.children).toEqual([{ type: 'text', value: '😺' }])
+			expect(style).toContain('font-size:0')
+			expect(style).toContain('line-height:0')
+			expect(style).toContain('color:transparent')
+			expect(style).toContain('-webkit-text-fill-color:transparent')
+			expect(style).not.toContain('user-select:none')
+			expect(style).not.toContain('-webkit-user-select:none')
+		})
+
 		it('omits title by default', () => {
 			const tree = processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
