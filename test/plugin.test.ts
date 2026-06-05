@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_ASSET_BASE } from '../src/constants.js'
 import { rehypeFluentEmoji } from '../src/plugin.js'
 import { resetSyncedPathsForTests } from '../src/sync-emoji-assets.js'
+import { resetResolvedFluentEmojiCodesForTests } from '../src/to-fluent-emoji-code.js'
 
 let tempDir = ''
 
@@ -25,6 +26,7 @@ function getTestPluginOptions(): Parameters<typeof rehypeFluentEmoji>[0] {
 
 beforeEach(async () => {
 	resetSyncedPathsForTests()
+	resetResolvedFluentEmojiCodesForTests()
 	tempDir = await mkdtemp(path.join(os.tmpdir(), 'rehype-fluent-emoji-plugin-'))
 	vi.stubGlobal('fetch', vi.fn(async () => new Response('<svg></svg>', { status: 200 })))
 })
@@ -329,7 +331,7 @@ describe('rehypeFluentEmoji', () => {
 			)
 			expect(result).toContain(`${DEFAULT_ASSET_BASE}/1f1fa-1f1f8_color.svg`)
 			expect(result).toContain(
-				`${DEFAULT_ASSET_BASE}/1f3f3-fe0f-200d-26a7-fe0f_color.svg`,
+				`${DEFAULT_ASSET_BASE}/1f3f3-200d-26a7_color.svg`,
 			)
 		})
 	})

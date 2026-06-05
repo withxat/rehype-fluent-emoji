@@ -16,10 +16,10 @@ export interface FluentEmojiUrlOptions {
 export function toFluentEmojiFilename(
 	emoji: string,
 	options: FluentEmojiUrlOptions = {},
+	code = toFluentEmojiCode(emoji),
 ): string {
 	const ext = options.ext ?? defaultOptions.ext
 	const style = options.style ?? defaultOptions.style
-	const code = toFluentEmojiCode(emoji)
 
 	return `${code}_${style}.${ext}`
 }

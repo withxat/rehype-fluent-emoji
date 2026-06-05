@@ -9,6 +9,7 @@ import {
 	resetSyncedPathsForTests,
 	syncEmojiAssets,
 } from '../src/sync-emoji-assets.js'
+import { resetResolvedFluentEmojiCodesForTests } from '../src/to-fluent-emoji-code.js'
 
 describe('syncEmojiAssets', () => {
 	let tempDir = ''
@@ -16,6 +17,7 @@ describe('syncEmojiAssets', () => {
 
 	beforeEach(async () => {
 		resetSyncedPathsForTests()
+		resetResolvedFluentEmojiCodesForTests()
 		tempDir = await mkdtemp(path.join(os.tmpdir(), 'rehype-fluent-emoji-'))
 		fetchMock = vi.fn(async () => new Response('<svg>😺</svg>', { status: 200 }))
 		vi.stubGlobal('fetch', fetchMock)
@@ -43,6 +45,44 @@ describe('syncEmojiAssets', () => {
 		expect(fetchMock).toHaveBeenCalledTimes(2)
 		expect(fetchMock).toHaveBeenCalledWith(
 			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f63a_color.svg',
+		)
+	})
+
+	it('falls back to the full code when stripped FE0F assets are missing', async () => {
+		fetchMock.mockImplementation(async (url: string) => {
+			if (url.endsWith('/1f468-200d-2695_color.svg')) {
+				return new Response('missing', { status: 404 })
+			}
+
+			if (url.endsWith('/1f468-200d-2695-fe0f_color.svg')) {
+				return new Response('<svg>👨‍⚕️</svg>', { status: 200 })
+			}
+
+			return new Response('missing', { status: 404 })
+		})
+
+		const options = resolveOptions({
+			assetOutputDir: 'emoji',
+			cwd: tempDir,
+		})
+
+		await syncEmojiAssets(['👨‍⚕️'], options)
+
+		const outputPath = path.join(
+			tempDir,
+			'emoji',
+			'1f468-200d-2695-fe0f_color.svg',
+		)
+
+		await expect(access(outputPath)).resolves.toBeUndefined()
+		expect(fetchMock).toHaveBeenCalledTimes(2)
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			1,
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f468-200d-2695_color.svg',
+		)
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			2,
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f468-200d-2695-fe0f_color.svg',
 		)
 	})
 

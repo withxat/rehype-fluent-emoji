@@ -172,7 +172,7 @@ By default, assets are downloaded from [withxat/fluentui-emoji-unicode](https://
 
 #### Generated asset paths
 
-Assets follow the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames:
+Assets follow the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames. Non-skintone emoji strip every `fe0f` from `metadata.unicode`; skintone emoji keep the `unicodeSkintones` code as-is. The plugin tries the stripped code first, then falls back to the full Unicode sequence when needed:
 
 ```
 {assetBase}/{unicode-code}_{style}.{ext}
@@ -186,7 +186,8 @@ Examples:
 | 👍🏻 | `1f44d-1f3fb_color.svg` |
 | 👨‍👩‍👧‍👦 | `1f468-200d-1f469-200d-1f467-200d-1f466_color.svg` |
 | 🇺🇸 | `1f1fa-1f1f8_color.svg` |
-| 🏳️‍⚧️ | `1f3f3-fe0f-200d-26a7-fe0f_color.svg` |
+| 🛠️ | `1f6e0_color.svg` |
+| 🏳️‍⚧️ | `1f3f3-200d-26a7_color.svg` |
 
 ### `toFluentEmojiCode(emoji)`
 
@@ -196,7 +197,8 @@ Utility that converts an emoji string to its Fluent Emoji Unicode asset code.
 import { toFluentEmojiCode } from 'rehype-fluent-emoji'
 
 toFluentEmojiCode('😺') // '1f63a'
-toFluentEmojiCode('🏳️‍⚧️') // '1f3f3-fe0f-200d-26a7-fe0f'
+toFluentEmojiCode('🛠️') // '1f6e0'
+toFluentEmojiCode('🏳️‍⚧️') // '1f3f3-200d-26a7'
 ```
 
 ### `toFluentEmojiUrl(emoji, options?)`

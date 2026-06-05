@@ -21,8 +21,10 @@ describe('toFluentEmojiCode', () => {
 		expect(toFluentEmojiCode('🇺🇸')).toBe('1f1fa-1f1f8')
 	})
 
-	it('preserves FE0F variation selectors', () => {
-		expect(toFluentEmojiCode('🏳️‍⚧️')).toBe('1f3f3-fe0f-200d-26a7-fe0f')
+	it('drops FE0F variation selectors by default', () => {
+		expect(toFluentEmojiCode('🛠️')).toBe('1f6e0')
+		expect(toFluentEmojiCode('🏳️‍⚧️')).toBe('1f3f3-200d-26a7')
+		expect(toFluentEmojiCode('👨‍⚕️')).toBe('1f468-200d-2695')
 	})
 
 	it('converts thumbs up without skin tone', () => {
