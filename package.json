@@ -37,7 +37,8 @@
 		"lint:fix": "eslint --fix",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"prepack": "pnpm run build"
+		"prepack": "pnpm run build",
+		"release": "bumpp && pnpm publish"
 	},
 	"dependencies": {
 		"@types/hast": "^3.0.4",
@@ -48,6 +49,7 @@
 		"@types/node": "^25.9.1",
 		"@withxat/eslint-config": "^1.1.4",
 		"@withxat/tsconfig": "^1.0.4",
+		"bumpp": "^11.1.0",
 		"eslint": "^10.3.0",
 		"rehype": "^13.0.2",
 		"rehype-parse": "^9.0.1",
