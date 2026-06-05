@@ -172,22 +172,20 @@ describe('rehypeFluentEmoji', () => {
 
 			expect(textSpan.properties.style).toContain('clip:rect(0,0,0,0)')
 			expect(textSpan.properties.style).toContain('clip-path:inset(50%)')
-			expect(textSpan.properties.style).toContain('font-size:0')
-			expect(textSpan.properties.style).toContain('line-height:0')
+			expect(textSpan.properties.style).toContain('left:-10000px')
 			expect(textSpan.properties.style).toContain('pointer-events:none')
 			expect(textSpan.properties.style).not.toContain('user-select:none')
 			expect(textSpan.properties.style).toContain('color:transparent')
 			expect(textSpan.properties.style).toContain('-webkit-text-fill-color:transparent')
 		})
 
-		it('prevents the native emoji glyph from bleeding through selected text', () => {
+		it('positions the native emoji glyph off screen for selected text', () => {
 			const tree = processTree('<p>Hello 😺 world</p>')
 			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
 			const style = String(textSpan.properties.style)
 
 			expect(textSpan.children).toEqual([{ type: 'text', value: '😺' }])
-			expect(style).toContain('font-size:0')
-			expect(style).toContain('line-height:0')
+			expect(style).toContain('left:-10000px')
 			expect(style).toContain('color:transparent')
 			expect(style).toContain('-webkit-text-fill-color:transparent')
 			expect(style).not.toContain('user-select:none')
