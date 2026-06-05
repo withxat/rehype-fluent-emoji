@@ -1,7 +1,7 @@
 {
 	"name": "rehype-fluent-emoji",
 	"type": "module",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"packageManager": "pnpm@11.5.1",
 	"description": "Rehype plugin to replace Unicode emoji with Fluent Emoji images",
 	"author": "",
