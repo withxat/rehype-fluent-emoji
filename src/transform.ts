@@ -2,7 +2,7 @@ import type { Parents, Root, Text } from 'hast'
 
 import type { ResolvedOptions } from './options.js'
 
-import emojiRegex from 'emoji-regex'
+import emojiRegex from 'emoji-regex-xs'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { collectEmojis } from './collect-emojis.js'
@@ -10,8 +10,6 @@ import { IGNORED_ELEMENTS } from './constants.js'
 import { createEmojiSpan } from './create-emoji-span.js'
 import { injectEmojiStyle } from './inject-emoji-style.js'
 import { syncEmojiAssets } from './sync-emoji-assets.js'
-
-const globalEmojiRegex = new RegExp(emojiRegex(), 'g')
 
 /** Mark every node inside ignored elements so their text is left untouched. */
 function markIgnoredNodes(tree: Root): WeakSet<object> {
@@ -35,7 +33,7 @@ function splitTextNode(
 	options: ResolvedOptions,
 ): Array<ReturnType<typeof createEmojiSpan> | Text> {
 	const value = node.value
-	const matches = [...value.matchAll(globalEmojiRegex)]
+	const matches = [...value.matchAll(emojiRegex())]
 
 	if (matches.length === 0) {
 		return [node]

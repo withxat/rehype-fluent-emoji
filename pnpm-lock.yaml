@@ -11,9 +11,9 @@ importers:
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
-      emoji-regex:
-        specifier: ^10.4.0
-        version: 10.6.0
+      emoji-regex-xs:
+        specifier: ^2.0.1
+        version: 2.0.1
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.1.0
@@ -939,8 +939,9 @@ packages:
   electron-to-chromium@1.5.367:
     resolution: {integrity: sha512-4Mk/mrynCNQ+atY40D3UpmhLWB6AHMbYMlIrPhHcMF6x0L7O0b052FCAsxw1LlaR++UFuNg3D/A6XCuGDa0guQ==}
 
-  emoji-regex@10.6.0:
-    resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
+  emoji-regex-xs@2.0.1:
+    resolution: {integrity: sha512-1QFuh8l7LqUcKe24LsPUNzjrzJQ7pgRwp1QMcZ5MX6mFplk2zQ08NVCM84++1cveaUUYtcCYHmeFEuNg16sU4g==}
+    engines: {node: '>=10.0.0'}
 
   empathic@2.0.1:
     resolution: {integrity: sha512-YGRs8knHhKHVShLkFET/rWAU8kmHbOV5LwN938RHI0pljAJ1Gf6SzXsSmRaEzcXTtOOmVqJ5+WtQPL5uigY50Q==}
@@ -3255,7 +3256,7 @@ snapshots:
 
   electron-to-chromium@1.5.367: {}
 
-  emoji-regex@10.6.0: {}
+  emoji-regex-xs@2.0.1: {}
 
   empathic@2.0.1: {}
 

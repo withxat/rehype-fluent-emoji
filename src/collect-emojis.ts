@@ -1,9 +1,7 @@
 import type { Root, Text } from 'hast'
 
-import emojiRegex from 'emoji-regex'
+import emojiRegex from 'emoji-regex-xs'
 import { visit } from 'unist-util-visit'
-
-const globalEmojiRegex = new RegExp(emojiRegex(), 'g')
 
 /** Collect Unicode emoji from text nodes that are eligible for transformation. */
 export function collectEmojis(
@@ -17,7 +15,7 @@ export function collectEmojis(
 			return
 		}
 
-		for (const match of node.value.matchAll(globalEmojiRegex)) {
+		for (const match of node.value.matchAll(emojiRegex())) {
 			emojis.add(match[0])
 		}
 	})
