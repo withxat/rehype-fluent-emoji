@@ -7,7 +7,7 @@ import { transformTree } from './transform.js'
 
 /**
  * Rehype plugin that replaces Unicode emoji in text nodes with Fluent Emoji
- * `<img>` elements.
+ * `<span>` elements that preserve the original Unicode for copy and screen readers.
  */
 export function rehypeFluentEmoji(options?: RehypeFluentEmojiOptions) {
 	const settings = resolveOptions(options)

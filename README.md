@@ -2,9 +2,9 @@
 
 [![npm version](https://img.shields.io/npm/v/rehype-fluent-emoji.svg)](https://www.npmjs.com/package/rehype-fluent-emoji)
 
-A [rehype](https://github.com/rehypejs/rehype) plugin that replaces Unicode emoji in text nodes with [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) images.
+A [rehype](https://github.com/rehypejs/rehype) plugin that replaces Unicode emoji in text nodes with [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) visuals.
 
-Works at the HAST (rehype) stage, is SSR-safe, and produces accessible `<img>` elements that point at flattened Unicode Fluent Emoji asset paths.
+Works at the HAST (rehype) stage, is SSR-safe, and outputs `<span>` elements that keep the original emoji character in the DOM for copy and screen readers.
 
 ## Installation
 
@@ -42,8 +42,19 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" class="fluent-emoji"></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;pointer-events:none;user-select:none;-webkit-user-select:none;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
 ```
+
+## Why `<span>` instead of `<img>`
+
+- **Copy-friendly** — the original Unicode emoji stays in a text layer, so users can copy `😺` instead of an image URL
+- **Screen reader friendly** — assistive technology reads the emoji character naturally
+- **Lightbox-safe** — common image zoom/lightbox libraries target `<img>` and usually ignore `<span>`
+
+Each emoji uses two layers:
+
+1. **Root `<span>`** — `1em` layout box with the Fluent Emoji `background-image`
+2. **Text layer** — the original Unicode character, visually hidden with `clip` and `clip-path`, then made transparent during selection so the Fluent Emoji background stays visible when selected
 
 ## Examples
 
@@ -58,7 +69,7 @@ console.log(String(file))
 **Output**
 
 ```html
-<p>Hello <img src="/emoji/1f63a_color.svg" alt="😺" class="fluent-emoji"> world <img src="/emoji/1f44d_color.svg" alt="👍" class="fluent-emoji"></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji>...</span> world <span class="fluent-emoji" data-fluent-emoji>...</span></p>
 ```
 
 ### Skin tone and ZWJ sequences
@@ -67,14 +78,7 @@ console.log(String(file))
 <p>👍🏻 👨‍👩‍👧‍👦</p>
 ```
 
-becomes
-
-```html
-<p>
-  <img src="/emoji/1f44d-1f3fb_color.svg" alt="👍🏻" class="fluent-emoji">
-  <img src="/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg" alt="👨‍👩‍👧‍👦" class="fluent-emoji">
-</p>
-```
+Each emoji becomes its own `<span>` with the matching Fluent Emoji background URL and the original Unicode text preserved inside.
 
 ### Ignored elements
 
@@ -91,7 +95,7 @@ Only the paragraph emoji is replaced; the code and pre blocks stay as Unicode.
 
 ### `rehypeFluentEmoji(options?)`
 
-Rehype plugin that scans text nodes for Unicode emoji and replaces them with Fluent Emoji `<img>` elements.
+Rehype plugin that scans text nodes for Unicode emoji and replaces them with Fluent Emoji `<span>` elements.
 
 #### Options
 
@@ -99,17 +103,10 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 | --- | --- | --- | --- |
 | `assetBase` | `string` | `'/emoji'` | Base URL or path for emoji assets |
 | `ext` | `string` | `'svg'` | File extension for emoji assets |
-| `className` | `string` | `'fluent-emoji'` | CSS class on generated images |
+| `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
+| `inlineStyle` | `boolean` | `true` | Emit full inline styles for each span |
 | `style` | `'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
 | `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
-
-By default, the plugin does not emit a `title` attribute. Pass a function when you want custom titles:
-
-```ts
-rehypeFluentEmoji({
-  title: emoji => `Emoji: ${emoji}`
-})
-```
 
 #### Generated asset paths
 
@@ -152,6 +149,22 @@ toFluentEmojiUrl('👍🏻', {assetBase: 'https://cdn.example.com/emoji', style:
 // 'https://cdn.example.com/emoji/1f44d-1f3fb_flat.png'
 ```
 
+### `FLUENT_EMOJI_CSS`
+
+Recommended stylesheet when using `inlineStyle: false`:
+
+```ts
+import {FLUENT_EMOJI_CSS} from 'rehype-fluent-emoji'
+
+// Inject into your app CSS bundle or a <style> tag
+```
+
+```ts
+rehypeFluentEmoji({inlineStyle: false})
+```
+
+Each span then only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
+
 ### Types
 
 ```ts
@@ -160,14 +173,18 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 
 ## Accessibility
 
-Each emoji is replaced with a semantic `<img>` element:
+Each emoji becomes a `<span>` with a hidden text child:
 
-- **`alt`** — the original emoji character, so assistive technology can convey the symbol
-- **Optional `title`** — emitted only when you provide a custom title resolver
-- **No `aria-hidden`** — images are not hidden from assistive technology
-- **No `role="presentation"`** — images are not stripped of meaning
+- **Root background** — Fluent Emoji image on a `1em` inline box
+- **Text layer** — the emoji glyph itself for screen readers and copy, but not painted during text selection
+- **No `role="img"`** — avoids replacing the character with a separate image object
+- **Optional `title`** — only when you provide a custom resolver
 
-This keeps emoji meaningful in screen readers and tooltips without hiding content behind decorative-only semantics.
+## Lightbox and image libraries
+
+Because emoji are rendered as `<span>` elements instead of `<img>`, they are unlikely to be picked up by lightbox, medium-zoom, or gallery plugins that scan images.
+
+The `data-fluent-emoji` attribute is also available if you need an explicit exclusion hook in custom scripts.
 
 ## Asset requirements
 

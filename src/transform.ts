@@ -6,7 +6,7 @@ import emojiRegex from 'emoji-regex'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { IGNORED_ELEMENTS } from './constants.js'
-import { createEmojiImage } from './create-emoji-image.js'
+import { createEmojiSpan } from './create-emoji-span.js'
 
 const globalEmojiRegex = new RegExp(emojiRegex(), 'g')
 
@@ -30,7 +30,7 @@ function markIgnoredNodes(tree: Root): WeakSet<object> {
 function splitTextNode(
 	node: Text,
 	options: ResolvedOptions,
-): Array<ReturnType<typeof createEmojiImage> | Text> {
+): Array<ReturnType<typeof createEmojiSpan> | Text> {
 	const value = node.value
 	const matches = [...value.matchAll(globalEmojiRegex)]
 
@@ -38,7 +38,7 @@ function splitTextNode(
 		return [node]
 	}
 
-	const nodes: Array<ReturnType<typeof createEmojiImage> | Text> = []
+	const nodes: Array<ReturnType<typeof createEmojiSpan> | Text> = []
 	let lastIndex = 0
 
 	for (const match of matches) {
@@ -49,7 +49,7 @@ function splitTextNode(
 			nodes.push({ type: 'text', value: value.slice(lastIndex, index) })
 		}
 
-		nodes.push(createEmojiImage(emoji, options))
+		nodes.push(createEmojiSpan(emoji, options))
 		lastIndex = index + emoji.length
 	}
 
@@ -60,7 +60,7 @@ function splitTextNode(
 	return nodes
 }
 
-/** Replace emoji in text nodes with Fluent Emoji `<img>` elements. */
+/** Replace emoji in text nodes with Fluent Emoji `<span>` elements. */
 export function transformTree(tree: Root, options: ResolvedOptions): void {
 	const ignored = markIgnoredNodes(tree)
 
