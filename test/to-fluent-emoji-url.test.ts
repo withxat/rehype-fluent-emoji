@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_ASSET_BASE } from '../src/constants.js'
-import { toFluentEmojiUrl } from '../src/to-fluent-emoji-url.js'
+import {
+	toFluentEmojiFilename,
+	toFluentEmojiUrl,
+} from '../src/to-fluent-emoji-url.js'
+
+describe('toFluentEmojiFilename', () => {
+	it('builds the flattened unicode asset filename', () => {
+		expect(toFluentEmojiFilename('😺')).toBe('1f63a_color.svg')
+	})
+})
 
 describe('toFluentEmojiUrl', () => {
 	it('builds a default Fluent Emoji asset URL', () => {
-		expect(toFluentEmojiUrl('😺')).toBe(
-			`${DEFAULT_ASSET_BASE}/1f63a_color.svg`,
-		)
+		expect(toFluentEmojiUrl('😺')).toBe('/emoji/1f63a_color.svg')
 	})
 
 	it('supports custom assetBase, style, and ext', () => {

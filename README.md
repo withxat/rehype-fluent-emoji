@@ -41,7 +41,7 @@ console.log(String(file))
 ### After
 
 ```html
-<style data-fluent-emoji-style>.fluent-emoji{position:relative}.fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent;user-select:text;-webkit-user-select:text}.fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}.fluent-emoji-visual{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:1em 1em;background-repeat:no-repeat}</style><p>Hello <span class="fluent-emoji" data-fluent-emoji><span class="fluent-emoji-text">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="background-image:url(https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg)"></span></span></p>
+<style data-fluent-emoji-style>.fluent-emoji{position:relative}.fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent;user-select:text;-webkit-user-select:text}.fluent-emoji-text::selection{color:transparent;-webkit-text-fill-color:transparent}.fluent-emoji-visual{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background-position:center;background-size:1em 1em;background-repeat:no-repeat}</style><p>Hello <span class="fluent-emoji" data-fluent-emoji><span class="fluent-emoji-text">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="background-image:url(/emoji/1f63a_color.svg)"></span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -55,7 +55,7 @@ Each emoji uses two layers inside a root `<span>`:
 1. **Text layer** — the original Unicode character underneath, kept transparent and selectable for copy, screen readers, and selection
 2. **Visual layer** — an `aria-hidden` background image rendered on top so Fluent Emoji stays visible during selection
 
-`pointer-events: none` on the visual layer keeps the text layer selectable. The plugin injects one shared `<style data-fluent-emoji-style>` element for layout and selection rules, and only sets per-emoji `background-image` inline on the visual layer.
+`pointer-events: none` on the visual layer keeps the text layer selectable. The plugin injects one shared `<style data-fluent-emoji-style>` element for layout and selection rules, downloads only the emoji assets used in the document into `public/emoji` by default, and sets per-emoji `background-image` inline on the visual layer.
 
 ## Examples
 
@@ -102,7 +102,11 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `assetBase` | `string` | jsDelivr CDN | Base URL for emoji assets |
+| `assetBase` | `string` | `'/emoji'` | Base URL for emoji assets in generated HTML |
+| `assetOutputDir` | `string` | `'public/emoji'` | Download used assets here, relative to `cwd` |
+| `assetRepository` | `string` | fluentui-emoji-unicode | GitHub repo URL or raw asset base used when downloading |
+| `assetRepositoryBranch` | `string` | `'master'` | Git ref used with `assetRepository` |
+| `cwd` | `string` | `process.cwd()` | Project root used to resolve `assetOutputDir` |
 | `ext` | `string` | `'svg'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
 | `style` | `'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
@@ -110,7 +114,7 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 
 #### Generated asset paths
 
-Assets follow the [fluentui-emoji-unicode](https://github.com/shuding/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames:
+Assets follow the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames:
 
 ```
 {assetBase}/{unicode-code}_{style}.{ext}
@@ -144,10 +148,8 @@ Utility that converts an emoji string to a Fluent Emoji asset URL using the same
 ```ts
 import {toFluentEmojiUrl} from 'rehype-fluent-emoji'
 
-toFluentEmojiUrl('😺')
-// 'https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg'
-toFluentEmojiUrl('👍🏻', {assetBase: '/emoji', style: 'flat', ext: 'png'})
-// '/emoji/1f44d-1f3fb_flat.png'
+toFluentEmojiUrl('😺') // '/emoji/1f63a_color.svg'
+toFluentEmojiUrl('👍🏻', {style: 'flat', ext: 'png'}) // '/emoji/1f44d-1f3fb_flat.png'
 ```
 
 ### Types
@@ -174,19 +176,25 @@ The `data-fluent-emoji` attribute is also available if you need an explicit excl
 
 ## Asset requirements
 
-This plugin does **not** bundle Fluent Emoji assets. By default it loads flattened Unicode-named files from [fluentui-emoji-unicode](https://github.com/shuding/fluentui-emoji-unicode) via jsDelivr:
+This plugin does **not** bundle Fluent Emoji assets. By default it downloads only the emoji used in each document from the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) repository into `public/emoji` during the rehype build:
+
+```ts
+rehypeFluentEmoji({
+  assetRepository: 'https://github.com/withxat/fluentui-emoji-unicode',
+})
+```
 
 ```
-https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f63a_color.svg
-https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f44d-1f3fb_color.svg
-https://cdn.jsdelivr.net/gh/shuding/fluentui-emoji-unicode/assets/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg
+public/emoji/1f63a_color.svg
+public/emoji/1f44d-1f3fb_color.svg
+public/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg
 ```
 
-Override `assetBase` if you want to self-host the same filenames locally.
+Generated HTML then references them as `/emoji/...`.
 
 ## SSR support
 
-The plugin operates purely on HAST trees. It does not use browser APIs, the DOM, or React. It is safe to run in Node.js during static site generation or server-side rendering.
+The plugin operates on HAST trees in Node.js. During the build it can download used emoji assets with `fetch`, write them under `public/emoji`, and emit local `/emoji/...` URLs. It is safe to run during static site generation or server-side rendering.
 
 ## Ignored elements
 

@@ -12,7 +12,7 @@ import { transformTree } from './transform.js'
 export function rehypeFluentEmoji(options?: RehypeFluentEmojiOptions) {
 	const settings = resolveOptions(options)
 
-	return (tree: Root) => {
-		transformTree(tree, settings)
+	return async (tree: Root) => {
+		await transformTree(tree, settings)
 	}
 }

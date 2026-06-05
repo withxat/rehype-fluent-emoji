@@ -5,9 +5,11 @@ import type { ResolvedOptions } from './options.js'
 import emojiRegex from 'emoji-regex'
 import { SKIP, visit } from 'unist-util-visit'
 
+import { collectEmojis } from './collect-emojis.js'
 import { IGNORED_ELEMENTS } from './constants.js'
 import { createEmojiSpan } from './create-emoji-span.js'
 import { injectEmojiStyle } from './inject-emoji-style.js'
+import { syncEmojiAssets } from './sync-emoji-assets.js'
 
 const globalEmojiRegex = new RegExp(emojiRegex(), 'g')
 
@@ -62,8 +64,17 @@ function splitTextNode(
 }
 
 /** Replace emoji in text nodes with Fluent Emoji `<span>` elements. */
-export function transformTree(tree: Root, options: ResolvedOptions): void {
+export async function transformTree(
+	tree: Root,
+	options: ResolvedOptions,
+): Promise<void> {
 	const ignored = markIgnoredNodes(tree)
+	const emojis = collectEmojis(tree, ignored)
+
+	if (emojis.size > 0) {
+		await syncEmojiAssets(emojis, options)
+	}
+
 	let hasEmoji = false
 
 	visit(tree, 'text', (node, index, parent) => {

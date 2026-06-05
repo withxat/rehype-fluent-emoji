@@ -1,20 +1,47 @@
 import type { Element, Root, Text } from 'hast'
 
+import { mkdtemp, rm } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+
 import rehypeParse from 'rehype-parse'
 import rehypeStringify from 'rehype-stringify'
 import { unified } from 'unified'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DEFAULT_ASSET_BASE } from '../src/constants.js'
 import { rehypeFluentEmoji } from '../src/plugin.js'
+import { resetSyncedPathsForTests } from '../src/sync-emoji-assets.js'
 
-const defaultEmojiUrl = (file: string) =>
-	`background-image:url(${DEFAULT_ASSET_BASE}/${file})`
+let tempDir = ''
+
+function getTestPluginOptions(): Parameters<typeof rehypeFluentEmoji>[0] {
+	return {
+		assetBase: DEFAULT_ASSET_BASE,
+		assetOutputDir: 'emoji',
+		cwd: tempDir,
+	}
+}
+
+beforeEach(async () => {
+	resetSyncedPathsForTests()
+	tempDir = await mkdtemp(path.join(os.tmpdir(), 'rehype-fluent-emoji-plugin-'))
+	vi.stubGlobal('fetch', vi.fn(async () => new Response('<svg></svg>', { status: 200 })))
+})
+
+afterEach(async () => {
+	vi.unstubAllGlobals()
+	await rm(tempDir, { force: true, recursive: true })
+})
+
+function defaultEmojiUrl(file: string) {
+	return `background-image:url(${DEFAULT_ASSET_BASE}/${file})`
+}
 
 async function process(html: string, options?: Parameters<typeof rehypeFluentEmoji>[0]) {
 	const file = await unified()
 		.use(rehypeParse, { fragment: true })
-		.use(rehypeFluentEmoji, options)
+		.use(rehypeFluentEmoji, { ...getTestPluginOptions(), ...options })
 		.use(rehypeStringify)
 		.process(html)
 
@@ -65,17 +92,17 @@ function getEmojiVisualSpan(root: Element, className = 'fluent-emoji'): Element 
 	)!
 }
 
-function processTree(
+async function processTree(
 	html: string,
 	options?: Parameters<typeof rehypeFluentEmoji>[0],
-): Root {
+): Promise<Root> {
 	const processor = unified()
 		.use(rehypeParse, { fragment: true })
-		.use(rehypeFluentEmoji, options)
+		.use(rehypeFluentEmoji, { ...getTestPluginOptions(), ...options })
 
 	const tree = processor.parse(html) as Root
 
-	processor.runSync(tree)
+	await processor.run(tree)
 
 	return tree
 }
@@ -105,8 +132,8 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('world')
 		})
 
-		it('handles mixed text and emoji', () => {
-			const tree = processTree('<p>Hi 😺 there</p>')
+		it('handles mixed text and emoji', async () => {
+			const tree = await processTree('<p>Hi 😺 there</p>')
 			const paragraph = tree.children.find(
 				(child): child is Element =>
 					child.type === 'element' && child.tagName === 'p',
@@ -118,8 +145,8 @@ describe('rehypeFluentEmoji', () => {
 			expect((paragraph.children[2] as Text).value).toBe(' there')
 		})
 
-		it('handles adjacent emoji', () => {
-			const tree = processTree('<p>😺👍</p>')
+		it('handles adjacent emoji', async () => {
+			const tree = await processTree('<p>😺👍</p>')
 			const paragraph = tree.children.find(
 				(child): child is Element =>
 					child.type === 'element' && child.tagName === 'p',
@@ -170,8 +197,8 @@ describe('rehypeFluentEmoji', () => {
 	})
 
 	describe('accessibility and copy', () => {
-		it('keeps the emoji character in a text layer for copy and screen readers', () => {
-			const tree = processTree('<p>😺</p>')
+		it('keeps the emoji character in a text layer for copy and screen readers', async () => {
+			const tree = await processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
 			const textSpan = getEmojiTextSpan(span)
 
@@ -180,8 +207,8 @@ describe('rehypeFluentEmoji', () => {
 			expect(span.properties.ariaHidden).toBeUndefined()
 		})
 
-		it('renders only the background image inline on the visual layer', () => {
-			const tree = processTree('<p>😺</p>')
+		it('renders only the background image inline on the visual layer', async () => {
+			const tree = await processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
 			const visualSpan = getEmojiVisualSpan(span)
 
@@ -194,22 +221,23 @@ describe('rehypeFluentEmoji', () => {
 
 		it('keeps shared text styles in the injected stylesheet', async () => {
 			const result = await process('<p>😺</p>')
-			const textSpan = getEmojiTextSpan(getEmojiSpans(processTree('<p>😺</p>'))[0]!)
+			const tree = await processTree('<p>😺</p>')
+			const textSpan = getEmojiTextSpan(getEmojiSpans(tree)[0]!)
 
 			expect(textSpan.properties.style).toBeUndefined()
 			expect(result).toContain('.fluent-emoji-text{color:transparent;-webkit-text-fill-color:transparent')
 			expect(result).toContain('.fluent-emoji-visual{position:absolute;inset:0;z-index:1')
 		})
 
-		it('omits title by default', () => {
-			const tree = processTree('<p>😺</p>')
+		it('omits title by default', async () => {
+			const tree = await processTree('<p>😺</p>')
 			const span = getEmojiSpans(tree)[0]!
 
 			expect(span.properties.title).toBeUndefined()
 		})
 
-		it('supports a custom title resolver', () => {
-			const tree = processTree('<p>😺</p>', {
+		it('supports a custom title resolver', async () => {
+			const tree = await processTree('<p>😺</p>', {
 				title: emoji => `Emoji: ${emoji}`,
 			})
 			const span = getEmojiSpans(tree)[0]!
@@ -217,8 +245,8 @@ describe('rehypeFluentEmoji', () => {
 			expect(span.properties.title).toBe('Emoji: 😺')
 		})
 
-		it('omits title when resolver returns undefined', () => {
-			const tree = processTree('<p>😺</p>', {
+		it('omits title when resolver returns undefined', async () => {
+			const tree = await processTree('<p>😺</p>', {
 				title: () => undefined,
 			})
 			const span = getEmojiSpans(tree)[0]!
@@ -245,7 +273,7 @@ describe('rehypeFluentEmoji', () => {
 		it('injects the style element into head for full documents', async () => {
 			const file = await unified()
 				.use(rehypeParse)
-				.use(rehypeFluentEmoji)
+				.use(rehypeFluentEmoji, getTestPluginOptions())
 				.use(rehypeStringify)
 				.process('<!doctype html><html><head><title>Test</title></head><body><p>😺</p></body></html>')
 
