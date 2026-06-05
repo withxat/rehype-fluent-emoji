@@ -6,7 +6,7 @@ import { toFluentEmojiCode } from './to-fluent-emoji-code.js'
 export interface FluentEmojiUrlOptions {
 	/** Base URL for emoji assets. @default '/emoji' when self-hosting */
 	assetBase?: string
-	/** File extension for emoji assets. @default 'svg' */
+	/** File extension for emoji assets. @default 'webp' */
 	ext?: string
 	/** Fluent Emoji visual style. @default 'color' */
 	style?: ResolvedOptions['style']

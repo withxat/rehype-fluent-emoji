@@ -39,8 +39,8 @@ describe('buildSharedStyle', () => {
 
 describe('buildVisualBackgroundStyle', () => {
 	it('only sets the per-emoji background image URL', () => {
-		expect(buildVisualBackgroundStyle('/emoji/1f63a_color.svg')).toBe(
-			'background-image:url(/emoji/1f63a_color.svg)',
+		expect(buildVisualBackgroundStyle('/emoji/1f63a_color.webp')).toBe(
+			'background-image:url(/emoji/1f63a_color.webp)',
 		)
 	})
 })

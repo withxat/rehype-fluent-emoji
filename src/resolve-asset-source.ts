@@ -4,7 +4,7 @@ const GITHUB_REPO_PATTERN
 /** Resolve a repository link or asset base URL to a downloadable asset base URL. */
 export function resolveAssetSource(
 	repository: string,
-	branch = 'main',
+	branch = 'webp',
 ): string {
 	const trimmed = repository.trim().replace(/\/$/, '')
 

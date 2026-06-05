@@ -7,31 +7,29 @@ import {
 
 describe('toFluentEmojiFilename', () => {
 	it('builds the flattened unicode asset filename', () => {
-		expect(toFluentEmojiFilename('😺')).toBe('1f63a_color.svg')
+		expect(toFluentEmojiFilename('😺')).toBe('1f63a_color.webp')
 	})
 })
 
 describe('toFluentEmojiUrl', () => {
 	it('builds a default Fluent Emoji asset URL', () => {
-		expect(toFluentEmojiUrl('😺')).toBe('/emoji/1f63a_color.svg')
+		expect(toFluentEmojiUrl('😺')).toBe('/emoji/1f63a_color.webp')
 	})
 
 	it('supports custom assetBase, style, and ext', () => {
 		expect(
 			toFluentEmojiUrl('👍🏻', {
 				assetBase: 'https://cdn.example.com/emoji/',
-				ext: 'png',
 				style: 'flat',
 			}),
-		).toBe('https://cdn.example.com/emoji/1f44d-1f3fb_flat.png')
+		).toBe('https://cdn.example.com/emoji/1f44d-1f3fb_flat.webp')
 	})
 
-	it('supports 3d PNG asset URLs', () => {
+	it('supports 3d asset URLs', () => {
 		expect(
 			toFluentEmojiUrl('😺', {
-				ext: 'png',
 				style: '3d',
 			}),
-		).toBe('/emoji/1f63a_3d.png')
+		).toBe('/emoji/1f63a_3d.webp')
 	})
 })

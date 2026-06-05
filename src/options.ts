@@ -24,17 +24,16 @@ export interface RehypeFluentEmojiOptions {
 	 * @default fluentui-emoji-unicode on GitHub
 	 */
 	assetRepository?: string
-	/** Git ref used with `assetRepository`. @default 'main' */
+	/** Git ref used with `assetRepository`. @default 'webp' */
 	assetRepositoryBranch?: string
 	/** CSS class applied to generated `<span>` elements. @default 'fluent-emoji' */
 	className?: string
 	/** Project root used to resolve `assetOutputDir`. @default `process.cwd()` */
 	cwd?: string
-	/** File extension for emoji assets. @default 'svg' */
+	/** File extension for emoji assets. @default 'webp' */
 	ext?: string
 	/**
 	 * Fluent Emoji visual style.
-	 * The `3d` style uses PNG assets by default.
 	 * @default 'color'
 	 */
 	style?: FluentEmojiStyle
@@ -65,7 +64,7 @@ export const defaultOptions: ResolvedOptions = {
 	),
 	className: 'fluent-emoji',
 	cwd: process.cwd(),
-	ext: 'svg',
+	ext: 'webp',
 	style: 'color',
 }
 
@@ -76,7 +75,7 @@ export function resolveOptions(
 	const assetRepositoryBranch = options?.assetRepositoryBranch
 		?? DEFAULT_ASSET_REPOSITORY_BRANCH
 	const style = options?.style ?? defaultOptions.style
-	const ext = options?.ext ?? (style === '3d' ? 'png' : defaultOptions.ext)
+	const ext = options?.ext ?? defaultOptions.ext
 
 	return {
 		...defaultOptions,

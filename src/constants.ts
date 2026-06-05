@@ -9,7 +9,7 @@ export const DEFAULT_ASSET_REPOSITORY
 	= 'https://github.com/withxat/fluentui-emoji-unicode'
 
 /** Default git ref used when resolving `assetRepository`. */
-export const DEFAULT_ASSET_REPOSITORY_BRANCH = 'main'
+export const DEFAULT_ASSET_REPOSITORY_BRANCH = 'webp'
 
 /** Element tag names whose text content must not be transformed. */
 export const IGNORED_ELEMENTS = new Set([

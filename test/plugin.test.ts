@@ -118,7 +118,7 @@ describe('rehypeFluentEmoji', () => {
 			expect(result).toContain('class="fluent-emoji-text"')
 			expect(result).toContain('class="fluent-emoji-visual"')
 			expect(result).toContain('data-fluent-emoji')
-			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.webp'))
 			expect(result).toContain('>😺</span>')
 			expect(result).not.toContain('background-clip:text')
 			expect(result).not.toContain('<img')
@@ -128,8 +128,8 @@ describe('rehypeFluentEmoji', () => {
 		it('replaces multiple emoji in one text node', async () => {
 			const result = await process('<p>Hello 😺 world 👍</p>')
 
-			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
-			expect(result).toContain(defaultEmojiUrl('1f44d_color.svg'))
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.webp'))
+			expect(result).toContain(defaultEmojiUrl('1f44d_color.webp'))
 			expect(result).toContain('Hello')
 			expect(result).toContain('world')
 		})
@@ -169,7 +169,7 @@ describe('rehypeFluentEmoji', () => {
 			const result = await process('<p><strong>😺</strong></p>')
 
 			expect(result).toContain('<strong>')
-			expect(result).toContain(defaultEmojiUrl('1f63a_color.svg'))
+			expect(result).toContain(defaultEmojiUrl('1f63a_color.webp'))
 		})
 
 		it('ignores emoji inside inline code', async () => {
@@ -216,7 +216,7 @@ describe('rehypeFluentEmoji', () => {
 
 			expect(span.properties.style).toBeUndefined()
 			expect(visualSpan.properties.style).toBe(
-				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_color.svg)`,
+				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_color.webp)`,
 			)
 			expect(visualSpan.properties.ariaHidden).toBe('true')
 		})
@@ -300,7 +300,7 @@ describe('rehypeFluentEmoji', () => {
 			})
 
 			expect(result).toContain(
-				'background-image:url(https://cdn.example.com/emoji/1f63a_color.svg)',
+				'background-image:url(https://cdn.example.com/emoji/1f63a_color.webp)',
 			)
 		})
 
@@ -315,11 +315,11 @@ describe('rehypeFluentEmoji', () => {
 			)
 		})
 
-		it('uses PNG assets by default for the 3d style', async () => {
+		it('uses webp assets by default for the 3d style', async () => {
 			const result = await process('<p>😺</p>', { style: '3d' })
 
 			expect(result).toContain(
-				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_3d.png)`,
+				`background-image:url(${DEFAULT_ASSET_BASE}/1f63a_3d.webp)`,
 			)
 		})
 
@@ -335,11 +335,11 @@ describe('rehypeFluentEmoji', () => {
 			const result = await process('<p>👨‍👩‍👧‍👦 🇺🇸 🏳️‍⚧️</p>')
 
 			expect(result).toContain(
-				`${DEFAULT_ASSET_BASE}/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg`,
+				`${DEFAULT_ASSET_BASE}/1f468-200d-1f469-200d-1f467-200d-1f466_color.webp`,
 			)
-			expect(result).toContain(`${DEFAULT_ASSET_BASE}/1f1fa-1f1f8_color.svg`)
+			expect(result).toContain(`${DEFAULT_ASSET_BASE}/1f1fa-1f1f8_color.webp`)
 			expect(result).toContain(
-				`${DEFAULT_ASSET_BASE}/1f3f3-200d-26a7_color.svg`,
+				`${DEFAULT_ASSET_BASE}/1f3f3-200d-26a7_color.webp`,
 			)
 		})
 	})

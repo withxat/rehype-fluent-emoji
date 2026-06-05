@@ -61,7 +61,7 @@ The plugin is async because it downloads used emoji assets during processing.
     <span
       class="fluent-emoji-visual"
       aria-hidden="true"
-      style="background-image:url(/emoji/1f63a_color.svg)"
+      style="background-image:url(/emoji/1f63a_color.webp)"
     ></span>
   </span>
 </p>
@@ -143,9 +143,9 @@ Rehype plugin that scans text nodes for Unicode emoji and replaces them with Flu
 | `assetBase` | `string` | `'/emoji'` | Base URL for emoji assets in generated HTML |
 | `assetOutputDir` | `string` | `'public/emoji'` | Directory for downloaded assets, relative to `cwd` |
 | `assetRepository` | `string` | `withxat/fluentui-emoji-unicode` | GitHub repo URL, shorthand, or raw asset base used when downloading |
-| `assetRepositoryBranch` | `string` | `'main'` | Git ref used with `assetRepository` when the URL does not include a branch |
+| `assetRepositoryBranch` | `string` | `'webp'` | Git ref used with `assetRepository` when the URL does not include a branch |
 | `cwd` | `string` | `process.cwd()` | Project root used to resolve `assetOutputDir` |
-| `ext` | `string` | `'svg'` (`'png'` for `style: '3d'`) | File extension for emoji assets |
+| `ext` | `string` | `'webp'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
 | `style` | `'3d' \| 'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
 | `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
@@ -161,13 +161,13 @@ By default, assets are downloaded from [withxat/fluentui-emoji-unicode](https://
 'https://github.com/withxat/fluentui-emoji-unicode'
 
 // GitHub repository URL with branch
-'https://github.com/withxat/fluentui-emoji-unicode/tree/main'
+'https://github.com/withxat/fluentui-emoji-unicode/tree/webp'
 
 // owner/repo shorthand
 'withxat/fluentui-emoji-unicode'
 
 // already-resolved raw asset base
-'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets'
+'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/webp/assets'
 ```
 
 #### Generated asset paths
@@ -182,13 +182,15 @@ Examples:
 
 | Emoji | Filename |
 | --- | --- |
-| 😺 | `1f63a_color.svg` |
-| 😺 with `style: '3d'` | `1f63a_3d.png` |
-| 👍🏻 | `1f44d-1f3fb_color.svg` |
-| 👨‍👩‍👧‍👦 | `1f468-200d-1f469-200d-1f467-200d-1f466_color.svg` |
-| 🇺🇸 | `1f1fa-1f1f8_color.svg` |
-| 🛠️ | `1f6e0_color.svg` |
-| 🏳️‍⚧️ | `1f3f3-200d-26a7_color.svg` |
+| 😺 | `1f63a_color.webp` |
+| 😺 with `style: '3d'` | `1f63a_3d.webp` |
+| 😺 with `style: 'flat'` | `1f63a_flat.webp` |
+| 😺 with `style: 'high-contrast'` | `1f63a_high-contrast.webp` |
+| 👍🏻 | `1f44d-1f3fb_color.webp` |
+| 👨‍👩‍👧‍👦 | `1f468-200d-1f469-200d-1f467-200d-1f466_color.webp` |
+| 🇺🇸 | `1f1fa-1f1f8_color.webp` |
+| 🛠️ | `1f6e0_color.webp` |
+| 🏳️‍⚧️ | `1f3f3-200d-26a7_color.webp` |
 
 ### `toFluentEmojiCode(emoji)`
 
@@ -209,14 +211,19 @@ Utility that converts an emoji string to a Fluent Emoji asset URL using the same
 ```ts
 import { toFluentEmojiUrl } from 'rehype-fluent-emoji'
 
-toFluentEmojiUrl('😺') // '/emoji/1f63a_color.svg'
-toFluentEmojiUrl('👍🏻', { style: 'flat', ext: 'png' }) // '/emoji/1f44d-1f3fb_flat.png'
-toFluentEmojiUrl('😺', { style: '3d', ext: 'png' }) // '/emoji/1f63a_3d.png'
+toFluentEmojiUrl('😺') // '/emoji/1f63a_color.webp'
+toFluentEmojiUrl('👍🏻', { style: 'flat' }) // '/emoji/1f44d-1f3fb_flat.webp'
+toFluentEmojiUrl('😺', { style: '3d' }) // '/emoji/1f63a_3d.webp'
 ```
 
-### Safari rendering
+### Visual styles
 
-The default `color` assets are SVG files and some Fluent Emoji icons use SVG filters for shadows and highlights. Safari can render those filtered SVGs softly, especially on Retina displays. Use `style: '3d'` to reference PNG assets, or `style: 'flat'` for filter-free SVG assets.
+Assets are downloaded from the [`webp`](https://github.com/withxat/fluentui-emoji-unicode/tree/webp) branch of [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode), where all four Fluent Emoji styles are available as WebP files:
+
+- `color` — default colorful style
+- `3d` — three-dimensional style
+- `flat` — flat style
+- `high-contrast` — high-contrast style
 
 ```ts
 rehypeFluentEmoji({
@@ -224,7 +231,7 @@ rehypeFluentEmoji({
 })
 ```
 
-When `style` is `3d`, the plugin uses `png` as the default `ext`.
+You can still override `ext` if you host assets in another format.
 
 ### Types
 
@@ -282,9 +289,9 @@ The `data-fluent-emoji` attribute is also available if you need an explicit excl
 This plugin does **not** bundle Fluent Emoji assets. By default it downloads only the emoji used in each document from [withxat/fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) into `public/emoji` during the rehype build:
 
 ```
-public/emoji/1f63a_color.svg
-public/emoji/1f44d-1f3fb_color.svg
-public/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.svg
+public/emoji/1f63a_color.webp
+public/emoji/1f44d-1f3fb_color.webp
+public/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.webp
 ```
 
 Generated HTML then references them as `/emoji/...`.

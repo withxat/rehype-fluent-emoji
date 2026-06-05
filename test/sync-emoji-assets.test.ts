@@ -36,25 +36,25 @@ describe('syncEmojiAssets', () => {
 
 		await syncEmojiAssets(['😺', '👍'], options)
 
-		const catPath = path.join(tempDir, 'emoji', '1f63a_color.svg')
-		const thumbsPath = path.join(tempDir, 'emoji', '1f44d_color.svg')
+		const catPath = path.join(tempDir, 'emoji', '1f63a_color.webp')
+		const thumbsPath = path.join(tempDir, 'emoji', '1f44d_color.webp')
 
 		await expect(access(catPath)).resolves.toBeUndefined()
 		await expect(access(thumbsPath)).resolves.toBeUndefined()
 		await expect(readFile(catPath, 'utf8')).resolves.toBe('<svg>😺</svg>')
 		expect(fetchMock).toHaveBeenCalledTimes(2)
 		expect(fetchMock).toHaveBeenCalledWith(
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f63a_color.svg',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/webp/assets/1f63a_color.webp',
 		)
 	})
 
 	it('falls back to the full code when stripped FE0F assets are missing', async () => {
 		fetchMock.mockImplementation(async (url: string) => {
-			if (url.endsWith('/1f468-200d-2695_color.svg')) {
+			if (url.endsWith('/1f468-200d-2695_color.webp')) {
 				return new Response('missing', { status: 404 })
 			}
 
-			if (url.endsWith('/1f468-200d-2695-fe0f_color.svg')) {
+			if (url.endsWith('/1f468-200d-2695-fe0f_color.webp')) {
 				return new Response('<svg>👨‍⚕️</svg>', { status: 200 })
 			}
 
@@ -71,18 +71,18 @@ describe('syncEmojiAssets', () => {
 		const outputPath = path.join(
 			tempDir,
 			'emoji',
-			'1f468-200d-2695-fe0f_color.svg',
+			'1f468-200d-2695-fe0f_color.webp',
 		)
 
 		await expect(access(outputPath)).resolves.toBeUndefined()
 		expect(fetchMock).toHaveBeenCalledTimes(2)
 		expect(fetchMock).toHaveBeenNthCalledWith(
 			1,
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f468-200d-2695_color.svg',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/webp/assets/1f468-200d-2695_color.webp',
 		)
 		expect(fetchMock).toHaveBeenNthCalledWith(
 			2,
-			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/main/assets/1f468-200d-2695-fe0f_color.svg',
+			'https://raw.githubusercontent.com/withxat/fluentui-emoji-unicode/webp/assets/1f468-200d-2695-fe0f_color.webp',
 		)
 	})
 
