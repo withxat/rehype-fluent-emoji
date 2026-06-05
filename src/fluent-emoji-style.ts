@@ -1,6 +1,7 @@
 export interface EmojiClassNames {
 	root: string
 	text: string
+	visual: string
 }
 
 /** Class names derived from the root `className` option. */
@@ -8,6 +9,7 @@ export function getEmojiClassNames(className: string): EmojiClassNames {
 	return {
 		root: className,
 		text: `${className}-text`,
+		visual: `${className}-visual`,
 	}
 }
 
@@ -23,6 +25,14 @@ export const FLUENT_EMOJI_CSS = [
 	`  height: ${EMOJI_SIZE};`,
 	'  overflow: hidden;',
 	'  vertical-align: middle;',
+	'}',
+	'.fluent-emoji-visual {',
+	'  position: absolute;',
+	'  inset: 0;',
+	'  z-index: 1;',
+	'  pointer-events: none;',
+	'  user-select: none;',
+	'  -webkit-user-select: none;',
 	'  background-image: var(--fluent-emoji-url);',
 	'  background-position: center;',
 	'  background-size: contain;',
@@ -30,6 +40,8 @@ export const FLUENT_EMOJI_CSS = [
 	'}',
 	'.fluent-emoji-text {',
 	'  display: inline-block;',
+	'  position: relative;',
+	'  z-index: 0;',
 	'  width: 100%;',
 	'  height: 100%;',
 	'  padding: 0;',
@@ -55,6 +67,8 @@ export const FLUENT_EMOJI_CSS = [
 
 const TEXT_INLINE_STYLE = [
 	'display:inline-block',
+	'position:relative',
+	'z-index:0',
 	'width:100%',
 	'height:100%',
 	'padding:0',
@@ -71,8 +85,33 @@ const TEXT_INLINE_STYLE = [
 	'-webkit-text-fill-color:transparent',
 ].join(';')
 
+const VISUAL_INLINE_STYLE = [
+	'position:absolute',
+	'inset:0',
+	'z-index:1',
+	'pointer-events:none',
+	'user-select:none',
+	'-webkit-user-select:none',
+]
+
 /** Build the inline `style` attribute for the root emoji span. */
-export function buildRootStyle(
+export function buildRootStyle(inlineStyle: boolean): string | undefined {
+	if (!inlineStyle) {
+		return undefined
+	}
+
+	return [
+		'display:inline-block',
+		'position:relative',
+		`width:${EMOJI_SIZE}`,
+		`height:${EMOJI_SIZE}`,
+		'overflow:hidden',
+		'vertical-align:middle',
+	].join(';')
+}
+
+/** Build the inline `style` attribute for the Fluent Emoji visual layer. */
+export function buildVisualStyle(
 	url: string,
 	inlineStyle: boolean,
 ): string {
@@ -80,12 +119,7 @@ export function buildRootStyle(
 
 	if (inlineStyle) {
 		return [
-			'display:inline-block',
-			'position:relative',
-			`width:${EMOJI_SIZE}`,
-			`height:${EMOJI_SIZE}`,
-			'overflow:hidden',
-			'vertical-align:middle',
+			...VISUAL_INLINE_STYLE,
 			`background:${cssUrl} center/contain no-repeat`,
 		].join(';')
 	}

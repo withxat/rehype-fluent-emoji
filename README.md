@@ -42,7 +42,7 @@ console.log(String(file))
 ### After
 
 ```html
-<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"><span class="fluent-emoji-text" style="display:inline-block;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;opacity:0;color:transparent;-webkit-text-fill-color:transparent">😺</span></span></p>
+<p>Hello <span class="fluent-emoji" data-fluent-emoji style="display:inline-block;position:relative;width:1em;height:1em;overflow:hidden;vertical-align:middle"><span class="fluent-emoji-text" style="display:inline-block;position:relative;z-index:0;width:100%;height:100%;padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;opacity:0;color:transparent;-webkit-text-fill-color:transparent">😺</span><span class="fluent-emoji-visual" aria-hidden="true" style="position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none;-webkit-user-select:none;background:url(/emoji/1f63a_color.svg) center/contain no-repeat"></span></span></p>
 ```
 
 ## Why `<span>` instead of `<img>`
@@ -51,10 +51,11 @@ console.log(String(file))
 - **Screen reader friendly** — assistive technology reads the emoji character naturally
 - **Lightbox-safe** — common image zoom/lightbox libraries target `<img>` and usually ignore `<span>`
 
-Each emoji uses two layers:
+Each emoji uses three layers:
 
-1. **Root `<span>`** — `1em` layout box with the Fluent Emoji `background-image`
+1. **Root `<span>`** — `1em` layout box with relative positioning
 2. **Text layer** — the original Unicode character, kept transparent and selectable so copying selected text preserves the emoji without painting the native glyph
+3. **Visual layer** — an `aria-hidden` overlay with the Fluent Emoji background, kept above the text layer so custom selection backgrounds do not cover it
 
 ## Examples
 
@@ -163,7 +164,7 @@ import {FLUENT_EMOJI_CSS} from 'rehype-fluent-emoji'
 rehypeFluentEmoji({inlineStyle: false})
 ```
 
-Each span then only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
+Each visual layer then only sets `--fluent-emoji-url: url(...)` inline, and `FLUENT_EMOJI_CSS` provides the shared layout rules.
 
 ### Types
 
@@ -173,9 +174,9 @@ import type {RehypeFluentEmojiOptions} from 'rehype-fluent-emoji'
 
 ## Accessibility
 
-Each emoji becomes a `<span>` with a hidden text child:
+Each emoji becomes a `<span>` with a hidden text child and a visual overlay:
 
-- **Root background** — Fluent Emoji image on a `1em` inline box
+- **Visual layer** — Fluent Emoji image on a `1em` inline box
 - **Text layer** — the emoji glyph itself for screen readers and copy, kept transparent while remaining selectable
 - **No `role="img"`** — avoids replacing the character with a separate image object
 - **Optional `title`** — only when you provide a custom resolver
