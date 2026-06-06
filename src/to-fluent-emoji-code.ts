@@ -1,15 +1,3 @@
-const resolvedCodes = new Map<string, string>()
-
-/** Remember the asset code that successfully synced for an emoji. */
-export function setResolvedFluentEmojiCode(emoji: string, code: string): void {
-	resolvedCodes.set(emoji, code)
-}
-
-/** Reset resolved asset codes. For tests only. */
-export function resetResolvedFluentEmojiCodesForTests(): void {
-	resolvedCodes.clear()
-}
-
 function toRawFluentEmojiCode(emoji: string): string {
 	return Array.from(emoji)
 		.map(character => character.codePointAt(0)!.toString(16))
@@ -44,5 +32,5 @@ export function toFluentEmojiCodeCandidates(emoji: string): string[] {
  * toFluentEmojiCode('🏳️‍⚧️') // '1f3f3-200d-26a7'
  */
 export function toFluentEmojiCode(emoji: string): string {
-	return resolvedCodes.get(emoji) ?? toFluentEmojiCodeCandidates(emoji)[0]!
+	return toFluentEmojiCodeCandidates(emoji)[0]!
 }

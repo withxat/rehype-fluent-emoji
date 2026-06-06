@@ -4,12 +4,11 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { resolveOptions } from '../src/options.js'
+import { resolveAssetSyncOptions } from '../src/asset-sync-options.js'
 import {
 	resetSyncedPathsForTests,
 	syncEmojiAssets,
 } from '../src/sync-emoji-assets.js'
-import { resetResolvedFluentEmojiCodesForTests } from '../src/to-fluent-emoji-code.js'
 
 describe('syncEmojiAssets', () => {
 	let tempDir = ''
@@ -17,7 +16,6 @@ describe('syncEmojiAssets', () => {
 
 	beforeEach(async () => {
 		resetSyncedPathsForTests()
-		resetResolvedFluentEmojiCodesForTests()
 		tempDir = await mkdtemp(path.join(os.tmpdir(), 'rehype-fluent-emoji-'))
 		fetchMock = vi.fn(async () => new Response('<svg>😺</svg>', { status: 200 }))
 		vi.stubGlobal('fetch', fetchMock)
@@ -29,7 +27,7 @@ describe('syncEmojiAssets', () => {
 	})
 
 	it('downloads used emoji assets into assetOutputDir', async () => {
-		const options = resolveOptions({
+		const options = resolveAssetSyncOptions({
 			assetOutputDir: 'emoji',
 			cwd: tempDir,
 		})
@@ -61,7 +59,7 @@ describe('syncEmojiAssets', () => {
 			return new Response('missing', { status: 404 })
 		})
 
-		const options = resolveOptions({
+		const options = resolveAssetSyncOptions({
 			assetOutputDir: 'emoji',
 			cwd: tempDir,
 		})
@@ -71,7 +69,7 @@ describe('syncEmojiAssets', () => {
 		const outputPath = path.join(
 			tempDir,
 			'emoji',
-			'1f468-200d-2695-fe0f_color.webp',
+			'1f468-200d-2695_color.webp',
 		)
 
 		await expect(access(outputPath)).resolves.toBeUndefined()
@@ -87,7 +85,7 @@ describe('syncEmojiAssets', () => {
 	})
 
 	it('skips downloading when the asset file already exists', async () => {
-		const options = resolveOptions({
+		const options = resolveAssetSyncOptions({
 			assetOutputDir: 'emoji',
 			cwd: tempDir,
 		})

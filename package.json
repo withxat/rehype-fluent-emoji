@@ -25,6 +25,9 @@
 			"default": "./dist/index.js"
 		}
 	},
+	"bin": {
+		"rehype-fluent-emoji": "./dist/cli.js"
+	},
 	"files": [
 		"dist"
 	],

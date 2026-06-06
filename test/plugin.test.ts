@@ -1,40 +1,18 @@
 import type { Element, Root, Text } from 'hast'
 
-import { mkdtemp, rm } from 'node:fs/promises'
-import os from 'node:os'
-import path from 'node:path'
-
 import rehypeParse from 'rehype-parse'
 import rehypeStringify from 'rehype-stringify'
 import { unified } from 'unified'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { DEFAULT_ASSET_BASE } from '../src/constants.js'
 import { rehypeFluentEmoji } from '../src/plugin.js'
-import { resetSyncedPathsForTests } from '../src/sync-emoji-assets.js'
-import { resetResolvedFluentEmojiCodesForTests } from '../src/to-fluent-emoji-code.js'
-
-let tempDir = ''
 
 function getTestPluginOptions(): Parameters<typeof rehypeFluentEmoji>[0] {
 	return {
 		assetBase: DEFAULT_ASSET_BASE,
-		assetOutputDir: 'emoji',
-		cwd: tempDir,
 	}
 }
-
-beforeEach(async () => {
-	resetSyncedPathsForTests()
-	resetResolvedFluentEmojiCodesForTests()
-	tempDir = await mkdtemp(path.join(os.tmpdir(), 'rehype-fluent-emoji-plugin-'))
-	vi.stubGlobal('fetch', vi.fn(async () => new Response('<svg></svg>', { status: 200 })))
-})
-
-afterEach(async () => {
-	vi.unstubAllGlobals()
-	await rm(tempDir, { force: true, recursive: true })
-})
 
 function defaultEmojiUrl(file: string) {
 	return `background-image:url(${DEFAULT_ASSET_BASE}/${file})`

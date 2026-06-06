@@ -9,8 +9,8 @@ Works at the HAST (rehype) stage, is SSR-safe, and outputs `<span>` elements tha
 ## Features
 
 - Replaces emoji in text nodes with Fluent Emoji `<span>` elements
-- Downloads only the emoji assets used in each document during the build
-- Writes assets to `public/emoji` by default and emits local `/emoji/...` URLs
+- Emits configurable asset URLs with `assetBase`
+- Provides a separate `rehype-fluent-emoji sync` command for downloading used assets
 - Keeps the original Unicode character for copy, selection, and screen readers
 - Injects one shared `<style data-fluent-emoji-style>` block for layout and selection rules
 - Leaves emoji inside `<code>`, `<pre>`, and similar elements unchanged
@@ -36,8 +36,6 @@ const file = await rehype()
 
 console.log(String(file))
 ```
-
-The plugin is async because it downloads used emoji assets during processing.
 
 ### Before
 
@@ -77,9 +75,8 @@ Each emoji becomes a root `<span>` with two layers:
 During the build, the plugin:
 
 1. Scans eligible text nodes for Unicode emoji
-2. Downloads only the referenced assets from the configured repository into `public/emoji`
-3. Injects one shared `<style data-fluent-emoji-style>` element
-4. Replaces each emoji with a `<span>` whose visual layer only sets per-emoji `background-image`
+2. Injects one shared `<style data-fluent-emoji-style>` element
+3. Replaces each emoji with a `<span>` whose visual layer only sets per-emoji `background-image`
 
 `pointer-events: none` on the visual layer keeps the text layer selectable.
 
@@ -136,25 +133,70 @@ Only the paragraph emoji is replaced; the code and pre blocks stay as Unicode.
 
 Rehype plugin that scans text nodes for Unicode emoji and replaces them with Fluent Emoji `<span>` elements.
 
+The plugin only transforms HAST and generates asset URLs. It does not download files or write to `public` during transformation. Use the `sync` command when you want to self-host assets.
+
 #### Options
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `assetBase` | `string` | `'/emoji'` | Base URL for emoji assets in generated HTML |
-| `assetOutputDir` | `string` | `'public/emoji'` | Directory for downloaded assets, relative to `cwd` |
-| `assetRepository` | `string` | `withxat/fluentui-emoji-unicode` | GitHub repo URL, shorthand, or raw asset base used when downloading |
-| `assetRepositoryBranch` | `string` | `'webp'` | Git ref used with `assetRepository` when the URL does not include a branch |
-| `cwd` | `string` | `process.cwd()` | Project root used to resolve `assetOutputDir` |
 | `ext` | `string` | `'webp'` | File extension for emoji assets |
 | `className` | `string` | `'fluent-emoji'` | CSS class on generated spans |
 | `style` | `'3d' \| 'color' \| 'flat' \| 'high-contrast'` | `'color'` | Fluent Emoji visual style |
 | `title` | `(emoji: string) => string \| undefined` | `undefined` | Optional title attribute resolver |
 
+### Sync assets
+
+Use the CLI to download the Fluent Emoji assets referenced by your content:
+
+```sh
+rehype-fluent-emoji sync content --out public/emoji
+```
+
+The local URL and output directory should line up:
+
+```ts
+rehypeFluentEmoji({
+  assetBase: '/emoji',
+})
+```
+
+```sh
+rehype-fluent-emoji sync content --out public/emoji
+```
+
+For CDN hosting, sync the files into a staging directory and upload them with your own asset pipeline:
+
+```ts
+rehypeFluentEmoji({
+  assetBase: 'https://cdn.example.com/emoji',
+})
+```
+
+```sh
+rehype-fluent-emoji sync content --out .emoji-assets
+```
+
+#### Sync options
+
+```sh
+rehype-fluent-emoji sync <file-or-directory...> [options]
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `--out <dir>` | `public/emoji` | Directory to write downloaded assets into, relative to `--cwd` |
+| `--cwd <dir>` | `process.cwd()` | Project root used to resolve input paths and `--out` |
+| `--repository <repo>` | `withxat/fluentui-emoji-unicode` | GitHub repo URL, shorthand, or raw asset base used when downloading |
+| `--branch <ref>` | `webp` | Git ref used with `--repository` when the URL does not include a branch |
+| `--style <style>` | `color` | Fluent Emoji visual style |
+| `--ext <ext>` | `webp` | Asset file extension |
+
 #### Asset repository
 
 By default, assets are downloaded from [withxat/fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode).
 
-`assetRepository` accepts:
+`--repository` accepts:
 
 ```ts
 // GitHub repository URL
@@ -172,7 +214,7 @@ By default, assets are downloaded from [withxat/fluentui-emoji-unicode](https://
 
 #### Generated asset paths
 
-Assets follow the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames. Non-skintone emoji strip every `fe0f` from `metadata.unicode`; skintone emoji keep the `unicodeSkintones` code as-is. The plugin tries the stripped code first, then falls back to the full Unicode sequence when needed:
+Assets follow the [fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) naming convention with flattened lowercase hexadecimal filenames. Generated URLs use the normalized emoji code: non-skintone emoji strip every `fe0f` from `metadata.unicode`; skintone emoji keep the `unicodeSkintones` code as-is. The sync command tries that normalized code first, then falls back to the full Unicode sequence as the source when needed while still writing the normalized filename:
 
 ```
 {assetBase}/{unicode-code}_{style}.{ext}

@@ -1,7 +1,10 @@
+export type { FluentEmojiAssetSyncOptions } from './asset-sync-options.js'
+export { resolveAssetSyncOptions } from './asset-sync-options.js'
+
 export type { RehypeFluentEmojiOptions } from './options.js'
 export { rehypeFluentEmoji } from './plugin.js'
-
 export { rehypeFluentEmoji as default } from './plugin.js'
+export { syncEmojiAssets } from './sync-emoji-assets.js'
 export { toFluentEmojiCode } from './to-fluent-emoji-code.js'
 export type { FluentEmojiUrlOptions } from './to-fluent-emoji-url.js'
 export { toFluentEmojiUrl } from './to-fluent-emoji-url.js'

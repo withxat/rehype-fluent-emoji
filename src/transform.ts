@@ -5,11 +5,9 @@ import type { ResolvedOptions } from './options.js'
 import emojiRegex from 'emoji-regex-xs'
 import { SKIP, visit } from 'unist-util-visit'
 
-import { collectEmojis } from './collect-emojis.js'
 import { IGNORED_ELEMENTS } from './constants.js'
 import { createEmojiSpan } from './create-emoji-span.js'
 import { injectEmojiStyle } from './inject-emoji-style.js'
-import { syncEmojiAssets } from './sync-emoji-assets.js'
 
 /** Mark every node inside ignored elements so their text is left untouched. */
 function markIgnoredNodes(tree: Root): WeakSet<object> {
@@ -67,12 +65,6 @@ export async function transformTree(
 	options: ResolvedOptions,
 ): Promise<void> {
 	const ignored = markIgnoredNodes(tree)
-	const emojis = collectEmojis(tree, ignored)
-
-	if (emojis.size > 0) {
-		await syncEmojiAssets(emojis, options)
-	}
-
 	let hasEmoji = false
 
 	visit(tree, 'text', (node, index, parent) => {
