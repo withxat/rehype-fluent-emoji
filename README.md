@@ -2,6 +2,8 @@
 
 [![npm version](https://img.shields.io/npm/v/rehype-fluent-emoji.svg)](https://www.npmjs.com/package/rehype-fluent-emoji)
 
+English | [简体中文](./README.zh-CN.md)
+
 A [rehype](https://github.com/rehypejs/rehype) plugin that replaces Unicode emoji in text nodes with [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) visuals.
 
 Works at the HAST (rehype) stage, is SSR-safe, and outputs `<span>` elements that keep the original emoji character in the DOM for copy and screen readers.
@@ -299,15 +301,18 @@ Make sure your site serves files from `public/emoji` at `/emoji/...`.
 
 ### Next.js / general static sites
 
-Run the plugin during HTML or MDX processing. The downloaded files land in `public/emoji`, so they are served automatically in most setups.
+Run the plugin during HTML or MDX processing, then run `rehype-fluent-emoji sync` for the same content so the referenced files land in `public/emoji`.
 
-If your framework uses a different public directory, set `assetOutputDir` and `assetBase` together:
+If your framework uses a different public directory, point `assetBase` at the served URL and pass the matching directory to `sync --out`:
 
 ```ts
 rehypeFluentEmoji({
-  assetOutputDir: 'static/emoji',
   assetBase: '/emoji',
 })
+```
+
+```sh
+rehype-fluent-emoji sync content --out static/emoji
 ```
 
 ## Accessibility
@@ -328,7 +333,7 @@ The `data-fluent-emoji` attribute is also available if you need an explicit excl
 
 ## Asset requirements
 
-This plugin does **not** bundle Fluent Emoji assets. By default it downloads only the emoji used in each document from [withxat/fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) into `public/emoji` during the rehype build:
+This plugin does **not** bundle Fluent Emoji assets. The rehype plugin only emits URLs. Use `rehype-fluent-emoji sync` to download the emoji used in your content from [withxat/fluentui-emoji-unicode](https://github.com/withxat/fluentui-emoji-unicode) into `public/emoji` or another output directory:
 
 ```
 public/emoji/1f63a_color.webp
@@ -338,13 +343,13 @@ public/emoji/1f468-200d-1f469-200d-1f467-200d-1f466_color.webp
 
 Generated HTML then references them as `/emoji/...`.
 
-Existing files are reused on later builds, so only new emoji trigger downloads.
+Existing files are reused on later sync runs, so only new emoji trigger downloads.
 
-You may want to commit `public/emoji` if your deployment does not run the rehype build step, or ignore it if assets are always regenerated locally or in CI.
+You may want to commit `public/emoji` if your deployment does not run the sync step, or ignore it if assets are always regenerated locally or in CI.
 
 ## SSR support
 
-The plugin operates on HAST trees in Node.js. During the build it downloads used emoji assets with `fetch`, writes them under `public/emoji`, and emits local `/emoji/...` URLs. It is safe to run during static site generation or server-side rendering.
+The plugin operates on HAST trees in Node.js and only emits HTML with asset URLs. It does not use browser APIs or write files during transformation, so it is safe to run during static site generation or server-side rendering.
 
 ## Ignored elements
 
